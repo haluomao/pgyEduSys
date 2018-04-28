@@ -1,0 +1,46 @@
+spring:
+  profiles:
+    active: dev
+server:
+  port: 7000
+  session:
+    timeout: 5400
+    cookie:
+      name: PGYSESSIONID
+---
+spring:
+  profiles: dev
+auth:
+  accounts:
+    -
+      username: admin
+      password: admin
+      role: ADMIN
+    -
+      username: guest
+      password: 4a35fe6704a0252d488af9e059c07b76
+      #21232f297a57a5a743894a0e4a801fc3
+      role: USER
+  authType: INMEM
+  loginPageUrl: /pgy/login.html
+  loginApi: /api/pgy/v1/auth/login
+  loginSuccessUrl: /pgy/#/homepage
+  logoutApi: /api/pgy/v1/auth/logout
+  logoutSuccessUrl: /pgy/
+  authPatterns:
+    - /api/pgy/**
+    - /api/common/**
+  ignorePatterns:
+    - /pgy/**
+    - /asset/**
+    - /dep/**
+jdbc:
+  dbReadBatchSize: 5000
+  dbWriteBatchSize: 1000
+  dbUrl: jdbc:mysql://localhost/pgy?useUnicode=true&characterEncoding=UTF8&autoReconnect=true&zeroDateTimeBehavior=convertToNull
+  dbUser: tester
+  dbPassword: 123456
+bos:
+  ak: ak
+  sk: sk
+  bucket: bucket

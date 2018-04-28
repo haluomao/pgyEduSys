@@ -1,0 +1,87 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.CategoryMaterialRelationMapper">
+
+    <select id="getRelationsByMaterials" parameterType="map"
+            resultType="com.pgy.material.bean.CategoryMaterialRelation">
+        SELECT
+            id,
+            category_id AS categoryId,
+            material_id AS materialId,
+            status AS status
+        FROM
+            category_material
+        WHERE
+            status != -1 AND
+            material_id IN
+            <foreach item="item" collection="materialIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </select>
+
+    <select id="getRelationsByCategorys" parameterType="map"
+            resultType="com.pgy.material.bean.CategoryMaterialRelation">
+        SELECT
+            id,
+            category_id AS categoryId,
+            material_id AS materialId,
+            status AS status
+        FROM
+            category_material
+        WHERE
+            status != -1 AND
+            category_id IN
+            <foreach item="item" collection="categoryIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </select>
+
+    <insert id="create" parameterType="com.pgy.material.bean.CategoryMaterialRelation" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO category_material
+            (category_id,
+             material_id,
+             status,
+             create_time,
+             update_time)
+        VALUES
+            (#{categoryId},
+             #{materialId},
+             #{status},
+             now(),
+             now())
+        ON DUPLICATE KEY UPDATE
+            category_id = #{categoryId},
+            material_id = #{materialId},
+            status = #{status}
+    </insert>
+
+    <update id="deleteByMaterials" parameterType="map">
+        UPDATE
+            category_material
+        SET
+            status = -1
+        WHERE
+            material_id IN
+            <foreach item="item" collection="materialIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+
+    <update id="deleteByCategorys" parameterType="map">
+        UPDATE
+            category_material
+        SET
+            status = -1
+        WHERE
+            category_id IN
+            <foreach item="item" collection="categoryIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+</mapper>

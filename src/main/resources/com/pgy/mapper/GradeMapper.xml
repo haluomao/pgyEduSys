@@ -1,0 +1,81 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.GradeMapper">
+
+    <select id="getGrades" parameterType="map"
+            resultType="com.pgy.grade.bean.Grade">
+        SELECT
+            id,
+            grade_name AS gradeName,
+            description,
+            status
+        FROM
+            grades
+        WHERE
+            id IN
+            <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </select>
+
+    <select id="detail" parameterType="map"
+            resultType="com.pgy.grade.bean.Grade">
+        SELECT
+            id,
+            grade_name AS gradeName,
+            description,
+            status
+        FROM
+            grades
+        WHERE
+            status != -1 AND id=#{id}
+    </select>
+
+    <insert id="create" parameterType="com.pgy.grade.bean.Grade" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO grades
+            (grade_name,
+             description,
+             status,
+             create_time,
+             update_time)
+        VALUES
+            (#{gradeName},
+             #{description},
+             #{status},
+             now(),
+             now())
+        ON DUPLICATE KEY UPDATE
+            grade_name = #{gradeName},
+            description = #{description},
+            status = #{status}
+    </insert>
+
+    <update id="update" parameterType="com.pgy.grade.bean.Grade">
+        UPDATE
+            grades
+        SET
+            grade_name = #{gradeName},
+            description = #{description},
+            status = #{status}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="delete" parameterType="list">
+        UPDATE
+            grades
+        SET
+            status = -1
+        WHERE
+            id IN
+            <foreach item="item" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+</mapper>

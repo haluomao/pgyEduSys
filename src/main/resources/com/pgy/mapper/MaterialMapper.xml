@@ -1,0 +1,109 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.MaterialMapper">
+
+    <select id="getMaterials" parameterType="map"
+            resultType="com.pgy.material.bean.Material">
+        SELECT
+            id,
+            name,
+            description,
+            file_type AS fileType,
+            url,
+            icon,
+            author_id AS authorId,
+            uploader_id AS uploaderId,
+            status
+        FROM
+            materials
+        WHERE
+            id IN
+            <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </select>
+
+    <select id="detail" parameterType="map"
+            resultType="com.pgy.material.bean.Material">
+        SELECT
+            id,
+            name,
+            description,
+            file_type AS fileType,
+            url,
+            icon,
+            author_id AS authorId,
+            uploader_id AS uploaderId,
+            status
+        FROM
+            materials
+        WHERE
+            status != -1 AND id=#{id}
+    </select>
+
+    <insert id="create" parameterType="com.pgy.material.bean.Material" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO materials
+            (name,
+             description,
+             file_type,
+             url,
+             icon,
+             author_id,
+             uploader_id,
+             status,
+             create_time,
+             update_time)
+        VALUES
+            (#{name},
+             #{description},
+             #{fileType},
+             #{url},
+             #{icon},
+             #{authorId},
+             #{uploaderId},
+             #{status},
+             now(),
+             now())
+        ON DUPLICATE KEY UPDATE
+            name = #{name},
+            description = #{description},
+            file_type = #{fileType},
+            url = #{url},
+            icon = #{icon},
+            uploader_id = #{uploaderId},
+            status = #{status}
+    </insert>
+
+    <update id="update" parameterType="com.pgy.material.bean.Material">
+        UPDATE
+            materials
+        SET
+            name = #{name},
+            description = #{description},
+            file_type = #{fileType},
+            url = #{url},
+            icon = #{icon},
+            uploader_id = #{uploaderId},
+            status = #{status}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="delete" parameterType="list">
+        UPDATE
+            materials
+        SET
+            status = -1
+        WHERE
+            id IN
+            <foreach item="item" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+</mapper>

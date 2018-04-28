@@ -1,0 +1,25 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.AccountMapper">
+
+    <select id="detail" parameterType="map"
+            resultType="com.pgy.account.bean.Account">
+        SELECT
+            id,
+            account_name AS accountName,
+            account_pass AS accountPassword,
+            role,
+            balance,
+            email,
+            phone,
+            permission,
+            parent_id AS parentId,
+            account_status AS status
+        FROM
+            accounts
+        WHERE
+            account_status != -1 AND id=#{id}
+    </select>
+</mapper>

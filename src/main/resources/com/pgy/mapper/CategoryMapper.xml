@@ -1,0 +1,87 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.CategoryMapper">
+
+    <select id="getCategories" parameterType="map"
+            resultType="com.pgy.category.bean.Category">
+        SELECT
+            id,
+            name,
+            description,
+            price,
+            status
+        FROM
+            categories
+        WHERE
+            id IN
+            <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </select>
+
+    <select id="detail" parameterType="map"
+            resultType="com.pgy.category.bean.Category">
+        SELECT
+            id,
+            name,
+            description,
+            price,
+            status
+        FROM
+            categories
+        WHERE
+            status != -1 AND id=#{id}
+    </select>
+
+    <insert id="create" parameterType="com.pgy.category.bean.Category" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO categories
+            (name,
+             description,
+             price,
+             status,
+             create_time,
+             update_time)
+        VALUES
+            (#{name},
+             #{description},
+             #{price},
+             #{status},
+             now(),
+             now())
+        ON DUPLICATE KEY UPDATE
+            name = #{name},
+            description = #{description},
+            price = #{price},
+            status = #{status}
+    </insert>
+
+    <update id="update" parameterType="com.pgy.category.bean.Category">
+        UPDATE
+            categories
+        SET
+            name = #{name},
+            description = #{description},
+            status = #{status},
+            price = #{price}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="delete" parameterType="list">
+        UPDATE
+            categories
+        SET
+            status = -1
+        WHERE
+            id IN
+            <foreach item="item" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+</mapper>

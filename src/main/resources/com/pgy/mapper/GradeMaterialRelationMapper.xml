@@ -1,0 +1,87 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.GradeMaterialRelationMapper">
+
+    <select id="getRelationsByMaterials" parameterType="map"
+            resultType="com.pgy.material.bean.GradeMaterialRelation">
+        SELECT
+            id,
+            grade_id AS gradeId,
+            material_id AS materialId,
+            status AS status
+        FROM
+            grade_material
+        WHERE
+            status != -1 AND
+            material_id IN
+            <foreach item="item" collection="materialIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </select>
+
+    <select id="getRelationsByGrades" parameterType="map"
+            resultType="com.pgy.material.bean.GradeMaterialRelation">
+        SELECT
+            id,
+            grade_id AS gradeId,
+            material_id AS materialId,
+            status AS status
+        FROM
+            grade_material
+        WHERE
+            status != -1 AND
+            grade_id IN
+            <foreach item="item" collection="gradeIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </select>
+
+    <insert id="create" parameterType="com.pgy.material.bean.GradeMaterialRelation" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO grade_material
+            (grade_id,
+             material_id,
+             status,
+             create_time,
+             update_time)
+        VALUES
+            (#{gradeId},
+             #{materialId},
+             #{status},
+             now(),
+             now())
+        ON DUPLICATE KEY UPDATE
+            grade_id = #{gradeId},
+            material_id = #{materialId},
+            status = #{status}
+    </insert>
+
+    <update id="deleteByMaterials" parameterType="map">
+        UPDATE
+            grade_material
+        SET
+            status = -1
+        WHERE
+            material_id IN
+            <foreach item="item" collection="materialIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+
+    <update id="deleteByGrades" parameterType="map">
+        UPDATE
+            grade_material
+        SET
+            status = -1
+        WHERE
+            grade_id IN
+            <foreach item="item" collection="gradeIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+</mapper>
