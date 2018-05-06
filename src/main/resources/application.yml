@@ -2,7 +2,7 @@ spring:
   profiles:
     active: dev
 server:
-  port: 7000
+  port: 9066
   session:
     timeout: 5400
     cookie:
@@ -40,7 +40,13 @@ jdbc:
   dbUrl: jdbc:mysql://localhost/pgy?useUnicode=true&characterEncoding=UTF8&autoReconnect=true&zeroDateTimeBehavior=convertToNull
   dbUser: tester
   dbPassword: 123456
-bos:
-  ak: ak
-  sk: sk
-  bucket: bucket
+upload:
+  type: LOCAL
+  local:
+    dir: ./upload
+    prefix: http://localhost/
+  bos:
+    ak: ak
+    sk: sk
+    bucket: bucket
+    uploadDir:

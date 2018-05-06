@@ -1,4 +1,4 @@
-package com.pgy.common.bean;
+package com.pgy.material.bean;
 
 /**
  * File type.

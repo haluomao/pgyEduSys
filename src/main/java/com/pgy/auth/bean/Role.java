@@ -1,4 +1,4 @@
-package com.pgy.account.bean;
+package com.pgy.auth.bean;
 
 /**
  * Role.
@@ -6,9 +6,11 @@ package com.pgy.account.bean;
  * @author Felix
  */
 public enum Role {
-    ADMIN(1),
-    USER(2),
-    GUEST(3);
+    SUPER_ADMIN(1),
+    ADMIN(2),
+    TEACHER(3),
+    USER(4),
+    GUEST(5);
 
     int value;
 
@@ -27,5 +29,9 @@ public enum Role {
             }
         }
         return null;
+    }
+
+    public boolean isAdmin() {
+        return this == SUPER_ADMIN || this == ADMIN;
     }
 }

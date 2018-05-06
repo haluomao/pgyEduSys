@@ -4,9 +4,11 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
-import com.pgy.common.bean.FileType;
-import com.pgy.common.bean.Status;
+import com.pgy.controller.material.bean.MaterialCriteria;
+import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.Material;
+import com.pgy.material.bean.MaterialStatus;
+import com.pgy.material.bean.PublicLevel;
 import com.pgy.mybatis.DbFactory;
 import com.pgy.test.BizDbTestCase;
 import com.pgy.test.MockDatabase;
@@ -24,7 +26,7 @@ import static org.junit.Assert.assertEquals;
 public class MaterialMapperTest extends BizDbTestCase {
 
     private static final long ID_1 = 1L;
-    private static final long ID_2 = 1L;
+    private static final long ID_2 = 2L;
 
     @Autowired
     private MaterialMapper materialMapper;
@@ -60,7 +62,19 @@ public class MaterialMapperTest extends BizDbTestCase {
         assertEquals(null, materialMapper.detail(ID_1));
     }
 
-    public Material buildMaterial1() {
+    @Test
+    public void query() {
+        assertEquals(Lists.newArrayList(buildMaterial1(), buildMaterial2()),
+                materialMapper.query(buildMaterialCriteria()));
+    }
+
+    private MaterialCriteria buildMaterialCriteria() {
+        return MaterialCriteria.Builder.aMaterialCriteria()
+                .withName("ma")
+                .build();
+    }
+
+    private Material buildMaterial1() {
         Material material = new Material();
         material.setId(ID_1);
         material.setName("material1");
@@ -70,11 +84,12 @@ public class MaterialMapperTest extends BizDbTestCase {
         material.setIcon("icon1");
         material.setAuthorId(1);
         material.setUploaderId(1);
-        material.setStatus(Status.ENABLED);
+        material.setStatus(MaterialStatus.ENABLED);
+        material.setPublicLevel(PublicLevel.PUBLIC);
         return material;
     }
 
-    public Material buildMaterial2() {
+    private Material buildMaterial2() {
         Material material = new Material();
         material.setId(ID_2);
         material.setName("material2");
@@ -84,7 +99,8 @@ public class MaterialMapperTest extends BizDbTestCase {
         material.setIcon("icon2");
         material.setAuthorId(1);
         material.setUploaderId(1);
-        material.setStatus(Status.ENABLED);
+        material.setStatus(MaterialStatus.ENABLED);
+        material.setPublicLevel(PublicLevel.PUBLIC);
         return material;
     }
 }

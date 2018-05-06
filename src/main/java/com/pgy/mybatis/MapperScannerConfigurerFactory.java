@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @author Felix
  */
 @Component
-public class MapperScannerConfigurerFactory extends AbstractMapperScannerConfigurerFactory{
+public class MapperScannerConfigurerFactory extends AbstractMapperScannerConfigurerFactory {
     @Bean(name = "mapperScannerConfigurer")
     public MapperScannerConfigurer createMapperScannerConfigurerBean() {
         return createMapperScannerConfigurer("com.pgy.mapper",

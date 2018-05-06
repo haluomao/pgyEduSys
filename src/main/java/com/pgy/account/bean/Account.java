@@ -1,7 +1,9 @@
 package com.pgy.account.bean;
 
+import java.util.Date;
+
 import com.google.common.base.Objects;
-import com.pgy.common.bean.Status;
+import com.pgy.auth.bean.Role;
 
 /**
  * The account.
@@ -12,19 +14,19 @@ public class Account {
     private long id;
     private String accountName;
     private String accountPassword;
+    private String username;
     private Role role;
     private long balance;
     private String email;
     private String phone;
+    private String permission;
     private long parentId;
-    private Status status;
+    private AccountStatus status;
+    private Date beginTime;
+    private Date endTime;
 
-    public Status getStatus() {
-        return status;
-    }
-
-    public void setStatus(Status status) {
-        this.status = status;
+    public boolean isEnabled() {
+        return status == AccountStatus.ENABLED;
     }
 
     public long getId() {
@@ -83,12 +85,52 @@ public class Account {
         this.phone = phone;
     }
 
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
+    }
+
     public long getParentId() {
         return parentId;
     }
 
     public void setParentId(long parentId) {
         this.parentId = parentId;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AccountStatus status) {
+        this.status = status;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Date getBeginTime() {
+        return beginTime;
+    }
+
+    public void setBeginTime(Date beginTime) {
+        this.beginTime = beginTime;
+    }
+
+    public Date getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        this.endTime = endTime;
     }
 
     @Override
@@ -105,15 +147,20 @@ public class Account {
                 && parentId == account.parentId
                 && Objects.equal(accountName, account.accountName)
                 && Objects.equal(accountPassword, account.accountPassword)
+                && Objects.equal(username, account.username)
                 && role == account.role
                 && Objects.equal(email, account.email)
                 && Objects.equal(phone, account.phone)
-                && status == account.status;
+                && Objects.equal(permission, account.permission)
+                && status == account.status
+                && Objects.equal(beginTime, account.beginTime)
+                && Objects.equal(endTime, account.endTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, accountName, accountPassword, role, balance, email, phone, parentId, status);
+        return Objects.hashCode(id, accountName, accountPassword, username, role, balance, email, phone, permission,
+                parentId, status, beginTime, endTime);
     }
 
     @Override
@@ -125,6 +172,8 @@ public class Account {
         builder.append(accountName);
         builder.append(", accountPassword=");
         builder.append(accountPassword);
+        builder.append(", username=");
+        builder.append(username);
         builder.append(", role=");
         builder.append(role);
         builder.append(", balance=");
@@ -133,10 +182,16 @@ public class Account {
         builder.append(email);
         builder.append(", phone=");
         builder.append(phone);
+        builder.append(", permission=");
+        builder.append(permission);
         builder.append(", parentId=");
         builder.append(parentId);
         builder.append(", status=");
         builder.append(status);
+        builder.append(", beginTime=");
+        builder.append(beginTime);
+        builder.append(", endTime=");
+        builder.append(endTime);
         builder.append('}');
         return builder.toString();
     }

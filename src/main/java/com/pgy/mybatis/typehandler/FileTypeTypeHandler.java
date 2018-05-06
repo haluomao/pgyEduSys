@@ -10,7 +10,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedTypes;
 import org.springframework.stereotype.Component;
 
-import com.pgy.common.bean.FileType;
+import com.pgy.material.bean.FileType;
 
 /**
  * FileType type handler.

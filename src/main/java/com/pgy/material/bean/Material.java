@@ -1,8 +1,6 @@
 package com.pgy.material.bean;
 
 import com.google.common.base.Objects;
-import com.pgy.common.bean.FileType;
-import com.pgy.common.bean.Status;
 
 /**
  * The material.
@@ -18,7 +16,8 @@ public class Material {
     private String icon;
     private long authorId;
     private long uploaderId;
-    private Status status;
+    private MaterialStatus status;
+    private PublicLevel publicLevel;
 
     public long getId() {
         return id;
@@ -84,12 +83,46 @@ public class Material {
         this.uploaderId = uploaderId;
     }
 
-    public Status getStatus() {
+    public MaterialStatus getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public void setStatus(MaterialStatus status) {
         this.status = status;
+    }
+
+    public PublicLevel getPublicLevel() {
+        return publicLevel;
+    }
+
+    public void setPublicLevel(PublicLevel publicLevel) {
+        this.publicLevel = publicLevel;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Material)) {
+            return false;
+        }
+        Material material = (Material) o;
+        return id == material.id
+                && authorId == material.authorId
+                && uploaderId == material.uploaderId
+                && Objects.equal(name, material.name)
+                && Objects.equal(description, material.description)
+                && fileType == material.fileType
+                && Objects.equal(url, material.url)
+                && Objects.equal(icon, material.icon)
+                && status == material.status
+                && publicLevel == material.publicLevel;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, name, description, fileType, url, icon, authorId, uploaderId, status, publicLevel);
     }
 
     @Override
@@ -113,32 +146,9 @@ public class Material {
         builder.append(uploaderId);
         builder.append(", status=");
         builder.append(status);
+        builder.append(", publicLevel=");
+        builder.append(publicLevel);
         builder.append('}');
         return builder.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Material)) {
-            return false;
-        }
-        Material material = (Material) o;
-        return id == material.id
-                && authorId == material.authorId
-                && uploaderId == material.uploaderId
-                && Objects.equal(name, material.name)
-                && Objects.equal(description, material.description)
-                && fileType == material.fileType
-                && Objects.equal(url, material.url)
-                && Objects.equal(icon, material.icon)
-                && status == material.status;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, name, description, fileType, url, icon, authorId, uploaderId, status);
     }
 }

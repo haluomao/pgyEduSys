@@ -3,6 +3,64 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.pgy.mapper.AccountMapper">
+    <select id="listByIds" parameterType="map"
+            resultType="com.pgy.account.bean.Account">
+        SELECT
+            id,
+            account_name AS accountName,
+            account_pass AS accountPassword,
+            username AS username,
+            role,
+            balance,
+            email,
+            phone,
+            permission,
+            parent_id AS parentId,
+            account_status AS status,
+            begin_time AS beginTime,
+            end_time AS endTime
+        FROM
+            accounts
+        WHERE
+            account_status != -1
+            <if test="ids.size() > 0">
+                AND id IN
+                <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="query" parameterType="map"
+            resultType="com.pgy.account.bean.Account">
+        SELECT
+            id,
+            account_name AS accountName,
+            account_pass AS accountPassword,
+            username AS username,
+            role,
+            balance,
+            email,
+            phone,
+            permission,
+            parent_id AS parentId,
+            account_status AS status,
+            begin_time AS beginTime,
+            end_time AS endTime
+        FROM
+            accounts
+        WHERE
+            1 = 1
+            <if test="query.status > 0">
+                AND account_status = #{query.status}
+            </if>
+            <if test="query.parentId != null">
+                AND parent_id = #{query.parentId}
+            </if>
+            <if test="query.accountName != null">
+                AND account_name = #{query.accountName}
+            </if>
+    </select>
 
     <select id="detail" parameterType="map"
             resultType="com.pgy.account.bean.Account">
@@ -10,16 +68,147 @@
             id,
             account_name AS accountName,
             account_pass AS accountPassword,
+            username AS username,
             role,
             balance,
             email,
             phone,
             permission,
             parent_id AS parentId,
-            account_status AS status
+            account_status AS status,
+            begin_time AS beginTime,
+            end_time AS endTime
         FROM
             accounts
         WHERE
             account_status != -1 AND id=#{id}
+    </select>
+
+    <select id="getAccount" parameterType="map"
+            resultType="com.pgy.account.bean.Account">
+        SELECT
+            id,
+            account_name AS accountName,
+            account_pass AS accountPassword,
+            username,
+            role,
+            balance,
+            email,
+            phone,
+            permission,
+            parent_id AS parentId,
+            account_status AS status,
+            begin_time AS beginTime,
+            end_time AS endTime
+        FROM
+            accounts
+        WHERE
+            account_status != -1 AND account_name=#{name}
+    </select>
+
+    <insert id="create" parameterType="com.pgy.account.bean.Account" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO accounts
+            (account_name,
+             account_pass,
+             username,
+             role,
+             balance,
+             email,
+             phone,
+             permission,
+             parent_id,
+             account_status,
+             begin_time,
+             end_time,
+             create_time,
+             update_time)
+        VALUES
+            (#{accountName},
+            #{accountPassword},
+            #{username},
+            #{role},
+            #{balance},
+            #{email},
+            #{phone},
+            #{permission},
+            #{parentId},
+            #{status},
+            #{beginTime},
+            #{endTime},
+            now(),
+            now())
+        ON DUPLICATE KEY UPDATE
+            username = #{username},
+            balance = #{balance},
+            email = #{email},
+            phone = #{phone},
+            permission = #{permission},
+            account_status = #{status}
+    </insert>
+
+    <update id="update" parameterType="com.pgy.account.bean.Account">
+        UPDATE
+            accounts
+        SET
+            username = #{username},
+            role = #{role},
+            balance = #{balance},
+            email = #{email},
+            phone = #{phone},
+            permission = #{permission},
+            account_status = #{status}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updatePwd" parameterType="com.pgy.account.bean.Account">
+        UPDATE
+            accounts
+        SET
+            account_pass = #{accountPassword}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="delete" parameterType="list">
+        UPDATE
+            accounts
+        SET
+            account_status = -1
+        WHERE
+            id IN
+            <foreach item="item" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+
+    <select id="checkAccount" parameterType="map" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            accounts
+        WHERE
+            account_status != -1
+        AND
+            account_name = #{name}
+        AND
+            account_pass = #{pwd}
+    </select>
+
+    <select id="countAccount" parameterType="map" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            accounts
+        WHERE
+            account_status != -1
+        AND
+            parent_id = #{parentId}
+        AND
+            role = #{role}
     </select>
 </mapper>

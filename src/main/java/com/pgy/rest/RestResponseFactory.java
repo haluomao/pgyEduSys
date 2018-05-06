@@ -1,13 +1,12 @@
 package com.pgy.rest;
 
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.Function;
 import com.pgy.common.CollectionHelper;
 
 /**
- * .
+ * Rest response factory.
  *
  * @author Felix
  */

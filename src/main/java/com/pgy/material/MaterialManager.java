@@ -2,7 +2,8 @@ package com.pgy.material;
 
 import java.util.List;
 
-import com.pgy.category.bean.Category;
+import com.pgy.controller.material.bean.MaterialCriteria;
+import com.pgy.material.bean.Material;
 
 /**
  * The material manager.
@@ -11,13 +12,15 @@ import com.pgy.category.bean.Category;
  */
 public interface MaterialManager {
 
-    List<Category> getCategories(List<Long> ids);
+    List<Material> getMaterials(List<Long> ids);
 
-    Category detail(long id);
+    List<Material> query(MaterialCriteria criteria);
 
-    int create(Category entity);
+    Material detail(long id);
 
-    int update(Category entity);
+    int create(Material entity);
+
+    int update(Material entity);
 
     void delete(List<Long> ids);
 }

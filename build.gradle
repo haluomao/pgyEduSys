@@ -3,6 +3,8 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 
+apply from: rootProject.file('gradle/checkstyle.gradle')
+
 sourceCompatibility = 1.7
 
 repositories {
@@ -11,8 +13,8 @@ repositories {
 
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-web:1.4.7.RELEASE") {
-    exclude module: "spring-boot-starter-logging"
-}
+        exclude module: "spring-boot-starter-logging"
+    }
     compile 'org.apache.tomcat.embed:tomcat-embed-core:8.5.28'
     compile 'org.apache.tomcat.embed:tomcat-embed-el:8.5.28'
     compile 'org.apache.tomcat.embed:tomcat-embed-websocket:8.5.28'
@@ -40,6 +42,11 @@ dependencies {
     compile 'org.apache.poi:poi:3.16'
     compile('org.springframework.boot:spring-boot-starter-actuator:1.4.7.RELEASE') {
         exclude module: "spring-boot-starter-logging"
+    }
+    compile('com.baidubce:bce-java-sdk:0.10.25'){
+        exclude module: 'logback-classic'
+        exclude module: 'logback-core'
+        exclude module: 'jcl-over-slf4j'
     }
 
     testCompile 'junit:junit:4.12'

@@ -10,7 +10,7 @@ import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedTypes;
 import org.springframework.stereotype.Component;
 
-import com.pgy.account.bean.Role;
+import com.pgy.auth.bean.Role;
 
 /**
  * Role type handler.

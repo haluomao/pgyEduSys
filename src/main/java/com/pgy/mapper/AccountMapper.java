@@ -1,9 +1,12 @@
 package com.pgy.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.pgy.account.bean.Account;
+import com.pgy.account.bean.AccountRequest;
 
 /**
  * Account mapper.
@@ -12,13 +15,23 @@ import com.pgy.account.bean.Account;
  */
 @Mapper
 public interface AccountMapper {
-//    List<Account> list(@Param("parentId") long parentId);
-//
-//    void create(Account entity);
-//
-//    void update(Account account);
-//
-//    void delete(long id);
+    List<Account> listByIds(@Param("ids") List<Long> ids);
+
+    List<Account> query(@Param("query") AccountRequest request);
+
+    int create(Account entity);
+
+    void updatePwd(Account account);
+
+    int update(Account account);
+
+    void delete(List<Long> ids);
 
     Account detail(@Param("id") long id);
+
+    Account getAccount(@Param("name") String name);
+
+    int checkAccount(@Param("name") String name, @Param("pwd") String password);
+
+    int countAccount(@Param("parentId") long parentId, @Param("role") int role);
 }

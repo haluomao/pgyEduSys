@@ -1,0 +1,117 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.AccountConfigMapper">
+    <select id="listByAccountIds" parameterType="map"
+            resultType="com.pgy.account.bean.AccountConfig">
+        SELECT
+            id,
+            account_id AS accountId,
+            teacher_limit AS teacherLimit,
+            parent_limit AS parentLimit,
+            storage_limit AS storageLimit,
+            storage_used AS storageUsed,
+            status AS status,
+            begin_time AS beginTime,
+            end_time AS endTime
+        FROM
+            account_config
+        WHERE
+            status != -1
+            <if test="accountIds.size() > 0">
+                AND account_id IN
+                <foreach item="item" collection="accountIds" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="detail" parameterType="map"
+            resultType="com.pgy.account.bean.AccountConfig">
+        SELECT
+            id,
+            account_id AS accountId,
+            teacher_limit AS teacherLimit,
+            parent_limit AS parentLimit,
+            storage_limit AS storageLimit,
+            storage_used AS storageUsed,
+            status AS status,
+            begin_time AS beginTime,
+            end_time AS endTime
+        FROM
+            account_config
+        WHERE
+            status != -1 AND id=#{configId}
+    </select>
+
+    <insert id="create" parameterType="com.pgy.account.bean.AccountConfig" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO account_config
+            (account_id,
+            teacher_limit,
+            parent_limit,
+            storage_limit,
+            storage_used,
+            status,
+            begin_time,
+            end_time,
+            create_time,
+            update_time)
+        VALUES
+            (#{accountId},
+            #{teacherLimit},
+            #{parentLimit},
+            #{storageLimit},
+            #{storageUsed},
+            #{status},
+            #{beginTime},
+            #{endTime},
+            now(),
+            now())
+        ON DUPLICATE KEY UPDATE
+            teacher_limit = #{teacherLimit},
+            parent_limit = #{parentLimit},
+            storage_limit = #{storageLimit},
+            begin_time = #{beginTime},
+            end_time = #{endTime}
+    </insert>
+
+    <update id="update" parameterType="com.pgy.account.bean.AccountConfig">
+        UPDATE
+            account_config
+        SET
+            teacher_limit = #{teacherLimit},
+            parent_limit = #{parentLimit},
+            storage_limit = #{storageLimit},
+            begin_time = #{beginTime},
+            end_time = #{endTime}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="updateStorage" parameterType="com.pgy.account.bean.AccountConfig">
+        UPDATE
+            account_config
+        SET
+            storage_used = #{storageUsed}
+        WHERE
+            account_id = #{accountId}
+    </update>
+
+    <update id="deleteByAccountId" parameterType="list">
+        UPDATE
+            account_config
+        SET
+            status = -1
+        WHERE
+            account_id IN
+            <foreach item="item" collection="accountIds" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+
+</mapper>

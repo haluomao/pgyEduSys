@@ -15,14 +15,52 @@
             icon,
             author_id AS authorId,
             uploader_id AS uploaderId,
+            public_level AS publicLevel,
             status
         FROM
             materials
         WHERE
-            id IN
-            <foreach item="item" collection="ids" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
+            status != -1
+            <if test="ids.size() > 0">
+                AND id IN
+                <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="query" parameterType="map"
+            resultType="com.pgy.material.bean.Material">
+        SELECT
+            id,
+            name,
+            description,
+            file_type AS fileType,
+            url,
+            icon,
+            author_id AS authorId,
+            uploader_id AS uploaderId,
+            public_level AS publicLevel,
+            status
+        FROM
+            materials
+        WHERE
+            status != -1
+            <if test="criteria.name != null">
+                <bind name="pattern" value="'%' + criteria.name + '%'"/>
+                AND name like #{pattern}
+            </if>
+            <if test="criteria.authorId != null">
+                AND author_id = #{criteria.authorId}
+            </if>
+            <if test="criteria.fileType != null">
+                AND file_type = #{criteria.fileType}
+            </if>
+            <if test="criteria.publicLevel != null">
+                AND public_level = #{criteria.publicLevel}
+            </if>
+        LIMIT
+            #{criteria.offset}, #{criteria.pageSize}
     </select>
 
     <select id="detail" parameterType="map"
@@ -36,6 +74,7 @@
             icon,
             author_id AS authorId,
             uploader_id AS uploaderId,
+            public_level AS publicLevel,
             status
         FROM
             materials
@@ -56,6 +95,7 @@
              icon,
              author_id,
              uploader_id,
+             public_level,
              status,
              create_time,
              update_time)
@@ -67,6 +107,7 @@
              #{icon},
              #{authorId},
              #{uploaderId},
+             #{publicLevel},
              #{status},
              now(),
              now())
@@ -77,6 +118,7 @@
             url = #{url},
             icon = #{icon},
             uploader_id = #{uploaderId},
+            public_level = #{publicLevel},
             status = #{status}
     </insert>
 
@@ -90,6 +132,7 @@
             url = #{url},
             icon = #{icon},
             uploader_id = #{uploaderId},
+            public_level = #{publicLevel},
             status = #{status}
         WHERE
             id = #{id}

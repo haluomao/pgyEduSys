@@ -1,4 +1,5 @@
 accounts
+account_config
 categories
 grades
 materials
