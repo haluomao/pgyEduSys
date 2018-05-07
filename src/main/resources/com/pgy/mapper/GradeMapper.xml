@@ -14,10 +14,13 @@
         FROM
             grades
         WHERE
-            id IN
-            <foreach item="item" collection="ids" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
+            status != -1
+            <if test="ids != null and ids.size() > 0" >
+                AND id IN
+                <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
     </select>
 
     <select id="detail" parameterType="map"

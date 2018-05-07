@@ -50,7 +50,7 @@
         FROM
             accounts
         WHERE
-            1 = 1
+            account_status != -1
             <if test="query.status > 0">
                 AND account_status = #{query.status}
             </if>
@@ -147,7 +147,9 @@
             email = #{email},
             phone = #{phone},
             permission = #{permission},
-            account_status = #{status}
+            account_status = #{status},
+            begin_time = #{beginTime},
+            end_time = #{endTime}
     </insert>
 
     <update id="update" parameterType="com.pgy.account.bean.Account">
@@ -155,12 +157,12 @@
             accounts
         SET
             username = #{username},
-            role = #{role},
             balance = #{balance},
             email = #{email},
             phone = #{phone},
             permission = #{permission},
-            account_status = #{status}
+            begin_time = #{beginTime},
+            end_time = #{endTime}
         WHERE
             id = #{id}
     </update>

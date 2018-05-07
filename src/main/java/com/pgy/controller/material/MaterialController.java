@@ -15,7 +15,7 @@ import com.pgy.rest.RestPageResponse;
  *
  * @author Felix
  */
-@RequestMapping("/api/material")
+@RequestMapping("/api/v1/material")
 public interface MaterialController {
 
     @RequestMapping("/list")

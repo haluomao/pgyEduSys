@@ -11,7 +11,7 @@ import com.pgy.controller.bean.RestResultResponse;
  *
  * @author Felix
  */
-@RequestMapping("/api/account")
+@RequestMapping("/api/v1/auth")
 public interface AuthController {
 
     @RequestMapping("/detail")

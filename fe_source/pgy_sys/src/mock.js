@@ -2,17 +2,17 @@ import {baseUrl} from './config/env'
 //引入mockjs
 const Mock = require('mockjs')
 //使用mockjs模拟数据
-Mock.mock('/api/category/create', (req, res) => {
+Mock.mock('/api/v1/category/create', (req, res) => {
     return {
 		"success": true
 	}
 });
-Mock.mock('/api/category/update', (req, res) => {
+Mock.mock('/api/v1/category/update', (req, res) => {
     return {
 		"success": true
 	}
 });
-Mock.mock('/api/category/list', (req, res) => {
+Mock.mock('/api/v1/category/list', (req, res) => {
     return {
 		"success": true,
 		"page": {
@@ -38,5 +38,71 @@ Mock.mock('/api/category/list', (req, res) => {
 		        }
 		    ]
 		}
+	}
+});
+
+Mock.mock('/api/v1/account/create', (req, res) => {
+    return {
+    	"success": true,
+    	"result": 6
+    }
+});
+
+Mock.mock('/api/v1/account/list', (req, res) => {
+    return {
+		"success": true,
+		"result": [{
+			"id": 1,
+			"accountName": "admin2",
+			"username": "user",
+			"role": "ADMIN",
+			"balance": 0,
+			"email": "a@a.com",
+			"phone": "1234567890",
+			"permission": "ALL",
+			"parentId": 0,
+			"status": "ENABLED",
+			"beginTime": 1466685616000,
+			"endTime": 1466685616000,
+			"config": {
+				"id": 1,
+				"accountId": 1,
+				"teacherLimit": 10,
+				"parentLimit": 50,
+				"storageLimit": 1000,
+				"storageUsed": 0,
+				"status": "ENABLED",
+				"beginTime": 1466685616000,
+				"endTime": 1466685616000
+			},
+			"teacherCount": 0,
+			"parentCount": 0
+		}, {
+			"id": 2,
+			"accountName": "guest",
+			"username": "user",
+			"role": "TEACHER",
+			"balance": 0,
+			"email": "b@b.com",
+			"phone": "1234567890",
+			"permission": "ALL",
+			"parentId": 0,
+			"status": "ENABLED",
+			"beginTime": 1466685661000,
+			"endTime": 1466685661000,
+			"config": {
+				"id": 2,
+				"accountId": 2,
+				"teacherLimit": 20,
+				"parentLimit": 100,
+				"storageLimit": 2000,
+				"storageUsed": 0,
+				"status": "ENABLED",
+				"beginTime": 1466685661000,
+				"endTime": 1466685661000
+			},
+			"teacherCount": 0,
+			"parentCount": 0
+		}]
 	}
 })

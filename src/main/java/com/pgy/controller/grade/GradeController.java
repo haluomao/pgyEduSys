@@ -15,7 +15,7 @@ import com.pgy.rest.RestPageResponse;
  *
  * @author Felix
  */
-@RequestMapping("/api/grade")
+@RequestMapping("/api/v1/grade")
 public interface GradeController {
 
     @RequestMapping("/list")

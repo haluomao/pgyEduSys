@@ -52,6 +52,10 @@ public class MaterialControllerImpl implements MaterialController {
 
         List<Material> categories = materialManager.query(MaterialCriteria.Builder.aMaterialCriteria()
                 .withName(request.getName())
+                .withPublicLevel(request.getPublicLevel())
+                .withAuthorId(request.getAuthorId())
+                .withGradeId(request.getGradeId())
+                .withCategoryId(request.getCategoryId())
                 .build());
         return RestResponseFactory.newPagedResponse(new RestPage.Builder<MaterialVO>()
                 .withBasePagedRequest(request)

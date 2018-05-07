@@ -14,7 +14,7 @@ public class GradePagedRequest extends BasePagedRequest {
     public static final class Builder {
         protected int pageNo = 1;
         protected int pageSize = 10;
-        protected String orderBy;
+        protected String orderBy = ORDER_BY;
         protected OrderType order = OrderType.DESC;
         private String name;
 

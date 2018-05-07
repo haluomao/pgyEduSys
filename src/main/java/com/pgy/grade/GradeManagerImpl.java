@@ -3,7 +3,9 @@ package com.pgy.grade;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+import com.pgy.common.CollectionHelper;
 import com.pgy.grade.bean.Grade;
 import com.pgy.mapper.GradeMapper;
 
@@ -12,6 +14,7 @@ import com.pgy.mapper.GradeMapper;
  *
  * @author Felix
  */
+@Component
 public class GradeManagerImpl implements GradeManager {
     private final GradeMapper gradeMapper;
 
@@ -22,7 +25,7 @@ public class GradeManagerImpl implements GradeManager {
 
     @Override
     public List<Grade> getGrade(List<Long> ids) {
-        return gradeMapper.getGrades(ids);
+        return CollectionHelper.getNonNullList(gradeMapper.getGrades(ids));
     }
 
     @Override

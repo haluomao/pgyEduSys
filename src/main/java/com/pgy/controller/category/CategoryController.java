@@ -15,7 +15,7 @@ import com.pgy.rest.RestPageResponse;
  *
  * @author Felix
  */
-@RequestMapping("/api/category")
+@RequestMapping("/api/v1/category")
 public interface CategoryController {
 
     @RequestMapping("/list")

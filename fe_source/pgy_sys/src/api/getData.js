@@ -1,26 +1,36 @@
-//import api from '@/config/api'
+// Use mock, (goto main.js first) remove the // below two lines. Then restart.
+// import {_fetch} from '@/config/api'
+// let fetch = _fetch
+
 import fetch from '@/config/fetch'
 
 //export const login = data => fetch('/admin/login', data, 'POST');
 
-export const logout = data => fetch('/api/logout', data);
-export const upload = data => fetch('/api/upload', data);
+export const logout = data => fetch('/api/v1/logout', data);
+export const upload = data => fetch('/api/v1/upload', data);
 
-export const listCategories = data => fetch('/api/category/list', data);
-export const deleteCategory = data => fetch('/api/category/delete', data);
-export const detailCategory = data => fetch('/api/category/detail', data);
-export const updateCategory = data => fetch('/api/category/update', data);
-export const createCategory = data => fetch('/api/category/create', data);
+export const listCategories = data => fetch('/api/v1/category/list', data);
+export const deleteCategory = data => fetch('/api/v1/category/delete', data);
+export const detailCategory = data => fetch('/api/v1/category/detail', data);
+export const updateCategory = data => fetch('/api/v1/category/update', data);
+export const createCategory = data => fetch('/api/v1/category/create', data);
 
-export const listMaterials = data => fetch('/api/material/list', data);
-export const deleteMaterial = data => fetch('/api/material/delete', data);
-export const detailMaterial = data => fetch('/api/material/detail', data);
-export const updateMaterial = data => fetch('/api/material/update', data);
-export const createMaterial = data => fetch('/api/material/create', data);
+export const listMaterials = data => fetch('/api/v1/material/list', data);
+export const deleteMaterial = data => fetch('/api/v1/material/delete', data);
+export const detailMaterial = data => fetch('/api/v1/material/detail', data);
+export const updateMaterial = data => fetch('/api/v1/material/update', data);
+export const createMaterial = data => fetch('/api/v1/material/create', data);
 
-export const allGrades = data => fetch('/api/grade/all', data);
-export const listGrade = data => fetch('/api/grade/list', data);
-export const deleteGrade = data => fetch('/api/grade/delete', data);
-export const detailGrade = data => fetch('/api/grade/detail', data);
-export const updateGrade = data => fetch('/api/grade/update', data);
-export const createGrade = data => fetch('/api/grade/create', data);
+export const allGrades = data => fetch('/api/v1/grade/all', data);
+export const listGrades = data => fetch('/api/v1/grade/list', data);
+export const deleteGrade = data => fetch('/api/v1/grade/delete', data);
+export const detailGrade = data => fetch('/api/v1/grade/detail', data);
+export const updateGrade = data => fetch('/api/v1/grade/update', data);
+export const createGrade = data => fetch('/api/v1/grade/create', data);
+
+export const listAccounts = data => fetch('/api/v1/account/list', data);
+export const detailAccount = data => fetch('/api/v1/account/detail', data);
+export const createAccount = data => fetch('/api/v1/account/create', data);
+export const updateAccount = data => fetch('/api/v1/account/update', data);
+export const updateAccountPwd = data => fetch('/api/v1/account/updatePwd', data);
+export const deleteAccount = data => fetch('/api/v1/account/delete', data);

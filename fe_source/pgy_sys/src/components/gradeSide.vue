@@ -41,6 +41,10 @@
 </script>
 
 <style scoped>
+#gradeSide {
+	text-align: center;
+}
+
 .el-row {
 	margin-top: 20px 
 }

@@ -2,6 +2,9 @@ package com.pgy.controller.account.bean;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.pgy.account.bean.Account;
 import com.pgy.account.bean.AccountConfig;
 import com.pgy.account.bean.AccountStatus;
@@ -12,25 +15,26 @@ import com.pgy.auth.bean.Role;
  *
  * @author Felix
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AccountVO {
 
     public static final class Builder {
-        private Long id;
+        private long id;
         private String accountName;
         private String accountPassword;
         private String username;
         private Role role;
-        private Long balance;
+        private long balance;
         private String email;
         private String phone;
         private String permission;
-        private Long parentId;
+        private long parentId;
         private AccountStatus status;
         private Date beginTime;
         private Date endTime;
         private AccountConfig config;
-        private Long teacherCount;
-        private Long parentCount;
+        private long teacherCount;
+        private long parentCount;
 
         private Builder() {
         }
@@ -39,7 +43,7 @@ public class AccountVO {
             return new Builder();
         }
 
-        public Builder withId(Long id) {
+        public Builder withId(long id) {
             this.id = id;
             return this;
         }
@@ -64,7 +68,7 @@ public class AccountVO {
             return this;
         }
 
-        public Builder withBalance(Long balance) {
+        public Builder withBalance(long balance) {
             this.balance = balance;
             return this;
         }
@@ -84,7 +88,7 @@ public class AccountVO {
             return this;
         }
 
-        public Builder withParentId(Long parentId) {
+        public Builder withParentId(long parentId) {
             this.parentId = parentId;
             return this;
         }
@@ -109,12 +113,12 @@ public class AccountVO {
             return this;
         }
 
-        public Builder withTeacherCount(Long teacherCount) {
+        public Builder withTeacherCount(long teacherCount) {
             this.teacherCount = teacherCount;
             return this;
         }
 
-        public Builder withParentCount(Long parentCount) {
+        public Builder withParentCount(long parentCount) {
             this.parentCount = parentCount;
             return this;
         }
@@ -157,22 +161,22 @@ public class AccountVO {
         }
     }
 
-    private Long id;
+    private long id;
     private String accountName;
     private String accountPassword;
     private String username;
     private Role role;
-    private Long balance;
+    private long balance;
     private String email;
     private String phone;
     private String permission;
-    private Long parentId;
+    private long parentId;
     private AccountStatus status;
     private Date beginTime;
     private Date endTime;
     private AccountConfig config;
-    private Long teacherCount;
-    private Long parentCount;
+    private long teacherCount;
+    private long parentCount;
 
     public Account buildAccount() {
         Account account = new Account();
@@ -182,9 +186,9 @@ public class AccountVO {
         account.setUsername(username);
         account.setRole(role);
         account.setBalance(balance);
-        account.setEmail(email);
-        account.setPhone(phone);
-        account.setPermission(permission);
+        account.setEmail(email == null ? StringUtils.EMPTY : email);
+        account.setPhone(phone == null ? StringUtils.EMPTY : phone);
+        account.setPermission(permission == null ? StringUtils.EMPTY : permission);
         account.setParentId(parentId);
         account.setStatus(status);
         account.setBeginTime(beginTime);
@@ -192,11 +196,11 @@ public class AccountVO {
         return account;
     }
 
-    public Long getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -232,11 +236,11 @@ public class AccountVO {
         this.role = role;
     }
 
-    public Long getBalance() {
+    public long getBalance() {
         return balance;
     }
 
-    public void setBalance(Long balance) {
+    public void setBalance(long balance) {
         this.balance = balance;
     }
 
@@ -264,11 +268,11 @@ public class AccountVO {
         this.permission = permission;
     }
 
-    public Long getParentId() {
+    public long getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public void setParentId(long parentId) {
         this.parentId = parentId;
     }
 
@@ -304,20 +308,19 @@ public class AccountVO {
         this.config = config;
     }
 
-    public Long getTeacherCount() {
+    public long getTeacherCount() {
         return teacherCount;
     }
 
-    public void setTeacherCount(Long teacherCount) {
+    public void setTeacherCount(long teacherCount) {
         this.teacherCount = teacherCount;
     }
 
-    public Long getParentCount() {
+    public long getParentCount() {
         return parentCount;
     }
 
-    public void setParentCount(Long parentCount) {
+    public void setParentCount(long parentCount) {
         this.parentCount = parentCount;
     }
-
 }

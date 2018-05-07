@@ -21,11 +21,20 @@
             materials
         WHERE
             status != -1
-            <if test="ids.size() > 0">
+            <if test="ids != null and ids.size() > 0">
                 AND id IN
                 <foreach item="item" collection="ids" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
+            </if>
+            <if test="authorId > 0">
+                AND author_id = authorId
+            </if>
+            <if test="publicLevel != null">
+                AND public_level = publicLevel
+            </if>
+            <if test="fileType != null">
+                AND file_type = fileType
             </if>
     </select>
 

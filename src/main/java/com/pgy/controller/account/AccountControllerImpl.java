@@ -52,7 +52,7 @@ public class AccountControllerImpl implements AccountController {
                 .build());
         List<Account> accounts = accountManager.getAccountsByQuery(
                 AccountRequest.Builder.anAccountRequest()
-                        .withParentId(customUser.getAccountId())
+                        .withParentId(0L)//customUser.getAccountId())
                         .build());
         final Map<Long, AccountConfig> accountIdConfigMap = accountManager.getAccountConfigs(
                 CollectionHelper.transform(accounts,
@@ -84,7 +84,8 @@ public class AccountControllerImpl implements AccountController {
                 .withParameter("customUser", customUser)
                 .withParameter("request", request)
                 .build());
-        long accountId = customUser.getRole().isAdmin() ? request.getId() : customUser.getAccountId();
+        //long accountId = customUser.getRole().isAdmin() ? request.getId() : customUser.getAccountId();
+        long accountId = 1L;
         Account account = accountManager.detail(accountId);
         AccountVO.Builder builder = AccountVO.Builder.anAccountVO().withAccount(account);
         if (account.getRole() == Role.ADMIN) {
@@ -102,10 +103,11 @@ public class AccountControllerImpl implements AccountController {
                 .withMessage("create account")
                 .withParameter("request", accountVO)
                 .build());
-
-        checkLimit(customUser.getAccountId(), accountVO.getRole());
-
-        accountVO.setParentId(customUser.getAccountId());
+// TODO check duplicate name.
+//        checkLimit(customUser.getAccountId(), accountVO.getRole());
+//
+//        accountVO.setParentId(customUser.getAccountId());
+        accountVO.setParentId(0L);
         accountVO.setStatus(AccountStatus.ENABLED);
         Account account = accountVO.buildAccount();
 
@@ -144,7 +146,7 @@ public class AccountControllerImpl implements AccountController {
                 .withMessage("delete account")
                 .withParameter("request", request)
                 .build());
-        checkParentId(customUser.getAccountId(), request.getId());
+        //checkParentId(customUser.getAccountId(), request.getId());
         accountManager.delete(Lists.newArrayList(request.getId()));
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }

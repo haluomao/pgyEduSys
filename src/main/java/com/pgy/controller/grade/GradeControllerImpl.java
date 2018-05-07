@@ -14,6 +14,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
+import com.pgy.common.bean.Status;
 import com.pgy.controller.bean.IdRequest;
 import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.grade.bean.GradePagedRequest;
@@ -102,6 +103,7 @@ public class GradeControllerImpl implements GradeController {
                 .withParameter("request", request)
                 .build());
 
+        request.setStatus(Status.ENABLED);
         gradeManager.create(request.buildGrade());
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }
@@ -113,6 +115,7 @@ public class GradeControllerImpl implements GradeController {
                 .build());
 
         Preconditions.checkArgument(request.getId() > 0);
+        request.setStatus(Status.ENABLED);
         gradeManager.update(request.buildGrade());
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }

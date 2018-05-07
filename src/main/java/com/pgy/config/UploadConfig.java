@@ -13,7 +13,7 @@ import com.pgy.util.bce.bos.bean.BosConfig;
 @Component
 @ConfigurationProperties(prefix = "upload")
 public class UploadConfig {
-    public class LocalConfig {
+    public static class LocalConfig {
         public String dir;
         public String prefix;
     }

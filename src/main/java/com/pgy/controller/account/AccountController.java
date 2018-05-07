@@ -2,7 +2,6 @@ package com.pgy.controller.account;
 
 import java.util.List;
 
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.pgy.auth.bean.CustomUser;
@@ -15,7 +14,7 @@ import com.pgy.controller.bean.RestResultResponse;
  *
  * @author Felix
  */
-@RequestMapping("/api/account")
+@RequestMapping("/api/v1/account")
 public interface AccountController {
 
     @RequestMapping("/list")
@@ -25,18 +24,18 @@ public interface AccountController {
     RestResultResponse<AccountVO> detail(CustomUser customUser, IdRequest request) throws Exception;
 
     @RequestMapping("/create")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     RestResultResponse<Long> create(CustomUser customUser, AccountVO accountVO) throws Exception;
 
     @RequestMapping("/update")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     RestResultResponse<Void> update(CustomUser customUser, AccountVO accountVO) throws Exception;
 
     @RequestMapping("/updatePwd")
     RestResultResponse<Void> updatePwd(CustomUser customUser, AccountVO accountVO) throws Exception;
 
     @RequestMapping("/delete")
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    //@PreAuthorize("hasRole('ROLE_ADMIN')")
     RestResultResponse<Void> delete(CustomUser customUser, IdRequest request) throws Exception;
 
 }

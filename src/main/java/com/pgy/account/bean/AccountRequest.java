@@ -10,7 +10,7 @@ public class AccountRequest {
     public static final class Builder {
         private Long parentId;
         private String accountName;
-        private AccountStatus status;
+        private int status;
 
         private Builder() {
         }
@@ -29,7 +29,7 @@ public class AccountRequest {
             return this;
         }
 
-        public Builder withStatus(AccountStatus status) {
+        public Builder withStatus(int status) {
             this.status = status;
             return this;
         }
@@ -45,7 +45,7 @@ public class AccountRequest {
 
     private Long parentId;
     private String accountName;
-    private AccountStatus status;
+    private int status;
 
     public Long getParentId() {
         return parentId;
@@ -63,11 +63,11 @@ public class AccountRequest {
         this.accountName = accountName;
     }
 
-    public AccountStatus getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(AccountStatus status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 }

@@ -11,7 +11,7 @@ import com.pgy.controller.common.bean.UploadResult;
  *
  * @author Felix
  */
-@RequestMapping("/api")
+@RequestMapping("/api/v1")
 public interface UploadController {
 
     @RequestMapping("/upload")

@@ -10,6 +10,8 @@ Vue.use(Router)
 const categoryList = r => require.ensure([], () => r(require('@/page/categoryList')), 'categoryList');
 const coursewareList = r => require.ensure([], () => r(require('@/page/coursewareList')), 'coursewareList');
 const addCourseware = r => require.ensure([], () => r(require('@/page/addCourseware')), 'addCourseware');
+const accountList = r => require.ensure([], () => r(require('@/page/accountList')), 'accountList');
+const gradeList = r => require.ensure([], () => r(require('@/page/gradeList')), 'gradeList');
 
 const gradeSide = r => require.ensure([], () => r(require('@/components/gradeSide')), 'gradeSide');
 
@@ -38,6 +40,14 @@ export default new Router({
     {
       path: '/addCourseware',
       component: addCourseware
+    },
+    {
+      path: '/accountList',
+      component: accountList
+    },
+    {
+      path: '/gradeList',
+      component: gradeList
     }
   ]
 })

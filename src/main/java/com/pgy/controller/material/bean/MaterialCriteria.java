@@ -1,6 +1,9 @@
 package com.pgy.controller.material.bean;
 
+import java.util.List;
+
 import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
 import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.PublicLevel;
 import com.pgy.rest.OrderType;
@@ -14,6 +17,9 @@ public class MaterialCriteria {
 
     public static final class Builder {
         private String name;
+        private List<Long> ids = Lists.newArrayList();
+        private Long categoryId;
+        private Long gradeId;
         private Long authorId;
         private FileType fileType;
         private PublicLevel publicLevel;
@@ -31,6 +37,21 @@ public class MaterialCriteria {
 
         public Builder withName(String name) {
             this.name = name;
+            return this;
+        }
+
+        public Builder withIds(List<Long> ids) {
+            this.ids = ids;
+            return this;
+        }
+
+        public Builder withCategoryId(Long categoryId) {
+            this.categoryId = categoryId;
+            return this;
+        }
+
+        public Builder withGradeId(Long gradeId) {
+            this.gradeId = gradeId;
             return this;
         }
 
@@ -64,7 +85,7 @@ public class MaterialCriteria {
             return this;
         }
 
-        public Builder withPublicLevely(PublicLevel publicLevel) {
+        public Builder withPublicLevel(PublicLevel publicLevel) {
             this.publicLevel = publicLevel;
             return this;
         }
@@ -72,6 +93,9 @@ public class MaterialCriteria {
         public MaterialCriteria build() {
             MaterialCriteria materialCriteria = new MaterialCriteria();
             materialCriteria.setName(name);
+            materialCriteria.setIds(ids);
+            materialCriteria.setGradeId(gradeId);
+            materialCriteria.setCategoryId(categoryId);
             materialCriteria.setAuthorId(authorId);
             materialCriteria.setFileType(fileType);
             materialCriteria.setPublicLevel(publicLevel);
@@ -84,6 +108,9 @@ public class MaterialCriteria {
     }
 
     private String name;
+    private List<Long> ids;
+    private Long categoryId;
+    private Long gradeId;
     private Long authorId;
     private FileType fileType;
     private PublicLevel publicLevel;
@@ -164,28 +191,28 @@ public class MaterialCriteria {
         this.publicLevel = publicLevel;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof MaterialCriteria)) {
-            return false;
-        }
-        MaterialCriteria that = (MaterialCriteria) o;
-        return pageNo == that.pageNo
-                && pageSize == that.pageSize
-                && Objects.equal(name, that.name)
-                && Objects.equal(authorId, that.authorId)
-                && fileType == that.fileType
-                && publicLevel == that.publicLevel
-                && order == that.order
-                && Objects.equal(orderBy, that.orderBy);
+    public Long getCategoryId() {
+        return categoryId;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(name, authorId, fileType, publicLevel, pageNo, pageSize, order, orderBy);
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public Long getGradeId() {
+        return gradeId;
+    }
+
+    public void setGradeId(Long gradeId) {
+        this.gradeId = gradeId;
+    }
+
+    public List<Long> getIds() {
+        return ids;
+    }
+
+    public void setIds(List<Long> ids) {
+        this.ids = ids;
     }
 
     @Override
@@ -193,6 +220,10 @@ public class MaterialCriteria {
         final StringBuilder builder = new StringBuilder("MaterialCriteria{");
         builder.append("name=");
         builder.append(name);
+        builder.append(", categoryId=");
+        builder.append(categoryId);
+        builder.append(", gradeId=");
+        builder.append(gradeId);
         builder.append(", authorId=");
         builder.append(authorId);
         builder.append(", fileType=");
@@ -209,5 +240,31 @@ public class MaterialCriteria {
         builder.append(orderBy);
         builder.append('}');
         return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MaterialCriteria)) {
+            return false;
+        }
+        MaterialCriteria that = (MaterialCriteria) o;
+        return pageNo == that.pageNo
+                && pageSize == that.pageSize
+                && Objects.equal(name, that.name)
+                && Objects.equal(categoryId, that.categoryId)
+                && Objects.equal(gradeId, that.gradeId)
+                && Objects.equal(authorId, that.authorId)
+                && fileType == that.fileType
+                && publicLevel == that.publicLevel
+                && order == that.order
+                && Objects.equal(orderBy, that.orderBy);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name, categoryId, gradeId, authorId, fileType, publicLevel, pageNo, pageSize, order, orderBy);
     }
 }
