@@ -22,7 +22,7 @@
             $.post('/api/adx/v1/auth/logout', {}, function (res) {
                 res = JSON.parse(res);
                 if (res.success) {
-                    window.location.href = '/adx/login.html';
+                    window.location.href = '/pgy/login.html';
                 }
             });
         });

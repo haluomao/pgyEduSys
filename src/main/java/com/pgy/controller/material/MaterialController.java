@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.pgy.auth.bean.CustomUser;
 import com.pgy.controller.bean.IdRequest;
 import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.material.bean.MaterialPagedRequest;
@@ -19,20 +20,20 @@ import com.pgy.rest.RestPageResponse;
 public interface MaterialController {
 
     @RequestMapping("/list")
-    RestPageResponse<MaterialVO> list(MaterialPagedRequest request) throws Exception;
+    RestPageResponse<MaterialVO> list(CustomUser loginUser, MaterialPagedRequest request) throws Exception;
 
     @RequestMapping("/all")
-    RestResultResponse<List<MaterialVO>> all() throws Exception;
+    RestResultResponse<List<MaterialVO>> all(CustomUser loginUser) throws Exception;
 
     @RequestMapping("/detail")
-    RestResultResponse<MaterialVO> detail(IdRequest idRequest) throws Exception;
+    RestResultResponse<MaterialVO> detail(CustomUser loginUser, IdRequest idRequest) throws Exception;
 
     @RequestMapping("/create")
-    RestResultResponse<Void> create(MaterialVO request) throws Exception;
+    RestResultResponse<Void> create(CustomUser loginUser, MaterialVO request) throws Exception;
 
     @RequestMapping("/update")
-    RestResultResponse<Void> update(MaterialVO request) throws Exception;
+    RestResultResponse<Void> update(CustomUser loginUser, MaterialVO request) throws Exception;
 
     @RequestMapping("/delete")
-    RestResultResponse<Void> delete(IdRequest idRequest) throws Exception;
+    RestResultResponse<Void> delete(CustomUser loginUser, IdRequest idRequest) throws Exception;
 }

@@ -2,36 +2,52 @@
 	<div id='addCourseware'>
 		<el-container>
 			<el-main>
-		<el-form ref="form" :model="form" label-width="80px">
-		  <el-form-item label="名称">
+		<el-form ref="form" :model="form" label-width="80px" :rules="rules">
+		  <el-form-item label="名称：" prop="name">
 		    <el-input v-model="form.name"></el-input>
 		  </el-form-item>
-		  <el-form-item label="类别">
-		    <el-select v-model="form.category" placeholder="请选择活动区域">
-		      <el-option label="区域一" value="shanghai"></el-option>
-		      <el-option label="区域二" value="beijing"></el-option>
+      <el-form-item label="作者：">
+        <el-input v-model="form.author"></el-input>
+      </el-form-item>
+		  <el-form-item label="年级：" prop="grade">
+		    <el-select v-model="form.grade" placeholder="请选择所属年级">
+          <el-option
+            v-for="item in grades"
+            :key="item.value"
+            :label="item.name"
+            :value="item.value">
+          </el-option>
 		    </el-select>
 		  </el-form-item>
-		  <el-form-item label="描述">
+      <el-form-item label="科目：" prop="category">
+        <el-select v-model="form.category" placeholder="请选择所属科目">
+          <el-option
+            v-for="item in categories"
+            :key="item.value"
+            :label="item.name"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+		  <el-form-item label="描述：" prop="description">
 		    <el-input type="textarea"	 v-model="form.description"></el-input>
 		  </el-form-item>
-		  <el-form-item label="作者">
-		    <el-input v-model="form.author"></el-input>
-		  </el-form-item>
-		  <el-form-item label="缩略图">
+		  <el-form-item label="缩略图：" prop="avatar">
 		  	<el-upload
-			  class="avatar-uploader"
+        v-model="form.avatar"
+        list-type="picture-card"
 			  :action="handonAction()"
 			  :show-file-list="false"
 			  :on-success="handleUploadSuccess"
 			  :before-upload="beforeAvatarUpload"
 			  :on-change="uploadFile">
 			  <img v-if="imageUrl" :src="imageUrl" class="avatar">
-			  <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+			  <i v-else class="el-icon-plus"></i>
 			</el-upload>	
 		  </el-form-item>
-		  <el-form-item label="上传课件">
+		  <el-form-item label="课件：" prop="material" >
 		  	<el-upload
+        v-model="form.material"
 			  class="upload-demo"
 			  drag
 			  :action="handonAction()"
@@ -42,7 +58,7 @@
 			</el-upload>	
 		  </el-form-item>
 		  <el-form-item>
-		    <el-button type="primary" @click="onSubmit">立即创建</el-button>
+		    <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
 		    <el-button>取消</el-button>
 		  </el-form-item>
 		</el-form>	
@@ -54,28 +70,99 @@
 
 <script>
 import {baseUploadPath} from '@/config/env'
-import {upload} from '@/api/getData'
+import {upload, allGrades, allCategories, updateMaterial, createMaterial} from '@/api/getData'
 
 export default {
     data() {
       return {
       	uploadUrl: '',
       	imageUrl: '',
+        grades: [],
+        categories: [],
         form: {
-          name: '',
-          region: '',
-          date1: '',
-          date2: '',
-          delivery: false,
-          type: [],
-          resource: '',
-          desc: ''
+        },
+        rules: {
+            name: [
+                { required: true, message: '请输入课件名', trigger: 'blur' },
+                { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
+            ],
+            grade: [
+                { required: true, message: '请选择年级', trigger: 'blur' }
+            ],
+            category: [
+                { required: true, message: '请选择科目', trigger: 'blur' }
+            ],
+            description: [
+                { required: true, message: '请输入描述', trigger: 'blur' },
+                { min: 1, max: 1000, message: '长度在 1 到 1000 个字符', trigger: 'blur' }
+            ],
+            avatar:[
+                { required: true, message: '请上传图片', trigger: 'blur' }
+            ],
+            material:[
+                { required: true, message: '请上传课件', trigger: 'blur' }
+            ]
         }
       }
     },
+    mounted() {
+      this.getAllGrades();
+      this.getAllCategories();
+    },
     methods: {
-      onSubmit() {
-        console.log('submit!');
+      async getAllGrades() {
+        try{
+          const res = await allGrades();
+          if (res.success === true) {
+            this.grades = res.result;
+          } else {
+            console.log("获取年级失败");
+          }
+        } catch(e) {
+          console.log(e)
+        }
+      },
+      async getAllCategories() {
+        const res = await allCategories();
+        if (res.success === true) {
+          this.categories = res.result;
+        } else {
+          console.log("获取科目失败");
+        }
+      },
+      validForm(formName) {
+          let flag = true;
+          this.$refs[formName].validate((valid) => {
+            if (valid) {
+              return true;
+            } else {
+              console.log('error submit!!');
+              flag = false;
+              return false;
+            }
+          });
+          return flag;
+      },
+      async onSubmit(formName) {
+          if (!this.validForm(formName)) return;
+
+          try {
+              let formData = _.assign(this.form);   
+
+              var res;
+              if (this.selectTable.id > 0) {
+                  res = await updateMaterial(formData);
+              } else {
+                  res = await createMaterial(formData);
+              }
+              if (res.success === true) {
+                  this.$message({ type: 'success', message: '操作成功'});
+              } else {
+                  this.$message({ type: 'error', message: res.message });
+              }
+          } catch(err) {
+              console.log('操作失败', err);
+          }
       },
       handleUploadSuccess(res, file) {
         this.imageUrl = URL.createObjectURL(file.raw);
@@ -105,36 +192,19 @@ export default {
 </script>
 
 <style scoped>
-.el-main {
-    color: #333;
-    text-align: left;
-    line-height: 160px;
-    width: 500px;
-}
+  .el-main {
+      color: #333;
+      text-align: left;
+      line-height: 160px;
+      width: 500px;
+  }
 
-.el-textarea__inner {
-	height: 100px;
-}
+  .el-input {
+    width: 240px;
+  }
 
-.avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-    background-color: #FFFFFF;
-}
+  .el-textarea {
+    width: 50%;
+  }
 
-.avatar-uploader .el-upload:hover {
-	border-color: #409EFF;
-}
-
-.avatar-uploader-icon {
-    font-size: 28px;
-    color: #8c939d;
-    width: 178px;
-    height: 178px;
-    line-height: 178px;
-    text-align: center;
-}
 </style>

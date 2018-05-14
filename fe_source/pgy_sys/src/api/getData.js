@@ -1,14 +1,18 @@
 // Use mock, (goto main.js first) remove the // below two lines. Then restart.
-// import {_fetch} from '@/config/api'
-// let fetch = _fetch
+import {_fetch} from '@/config/api'
+let fetch = _fetch
 
-import fetch from '@/config/fetch'
+//import fetch from '@/config/fetch'
 
 //export const login = data => fetch('/admin/login', data, 'POST');
 
+export const login = data => fetch('/api/v1/login', data);
 export const logout = data => fetch('/api/v1/logout', data);
+
 export const upload = data => fetch('/api/v1/upload', data);
 
+
+export const allCategories = data => fetch('/api/v1/category/all', data);
 export const listCategories = data => fetch('/api/v1/category/list', data);
 export const deleteCategory = data => fetch('/api/v1/category/delete', data);
 export const detailCategory = data => fetch('/api/v1/category/detail', data);

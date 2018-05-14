@@ -2,6 +2,95 @@ import {baseUrl} from './config/env'
 //引入mockjs
 const Mock = require('mockjs')
 //使用mockjs模拟数据
+
+Mock.mock('/api/v1/logout', (req, res) => {
+    return {
+		"success": true
+	}
+});
+
+Mock.mock('/api/v1/login', (req, res) => {
+    return {
+		"success": true,
+		"result": {
+			"accountId": 1,
+		    "username": "user",
+		    "role": "ADMIN"
+		}
+	}
+});
+
+Mock.mock('/api/v1/grade/all', (req, res) => {
+    return {
+		"success": true,
+		"result": [{
+		    "name": "一年级",
+		    "value": 1
+		},{
+		    "name": "二年级",
+		    "value": 2
+		},{
+		    "name": "三年级",
+		    "value": 3
+		}]
+	}
+});
+
+Mock.mock('/api/v1/grade/list', (req, res) => {
+    return {
+		"success": true,
+		"page": {
+		    "totalCount": 2,
+		    "pageNo": 1,
+		    "pageSize": 10,
+		    "orderBy": "id",
+		    "order": "desc",
+		    "result": []
+		}
+	}
+});
+
+Mock.mock('/api/v1/material/list', (req, res) => {
+    return {
+		"success": true,
+		"page": {
+		    "totalCount": 2,
+		    "pageNo": 1,
+		    "pageSize": 10,
+		    "orderBy": "id",
+		    "order": "desc",
+		    "result": [
+		        {
+		            "id": 1,
+		            "name": "category1",
+		            "description": "desc1",
+		            "price": 100,
+		            "status": "ENABLED"
+		        },
+		        {
+		            "id": 2,
+		            "name": "category2",
+		            "description": "desc2",
+		            "price": 200,
+		            "status": "ENABLED"
+		        }
+		    ]
+		}
+	}
+});
+
+Mock.mock('/api/v1/category/all', (req, res) => {
+    return {
+		"success": true,
+		"result": [{
+		    "name": "数学",
+		    "value": 1
+		},{
+		    "name": "语文",
+		    "value": 2
+		}]
+	}
+});
 Mock.mock('/api/v1/category/create', (req, res) => {
     return {
 		"success": true

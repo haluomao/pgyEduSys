@@ -3,3 +3,4 @@ logs/*
 out/*
 build/*
 upload/
+src/main/resources/static/*

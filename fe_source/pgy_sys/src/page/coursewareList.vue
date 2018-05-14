@@ -1,8 +1,14 @@
 <template>
     <div class="fillcontain">
         <el-row>
+            
             <el-col :span="12">
-                <el-button type="success" round @click="handleAdd()">添加课件</el-button>
+                <template v-if="isAdmin">
+                    <el-button type="success" round @click="handleAdd()">添加课件</el-button>
+                </template>
+                <template v-else>
+                    <div class="grid-content bg-purple-dark">&nbsp;</div>
+                </template>
             </el-col>
 
             <el-col :span="8">
@@ -32,10 +38,12 @@
                   <template slot-scope="scope">
                   	<el-button size="mini"
                       @click="handleOpen(scope.$index, scope.row)">打开</el-button>
-                    <el-button size="mini"
-                      @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
-                    <el-button size="mini" type="danger"
-                      @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    <template v-if="isAdmin"> 
+                        <el-button size="mini"
+                          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+                        <el-button size="mini" type="danger"
+                          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                    </template>
                   </template>
                 </el-table-column>
             </el-table>
@@ -56,7 +64,8 @@
 <script>
     import _ from "lodash"
     import {listMaterials, deleteMaterial} from '@/api/getData'
-
+    import {getCookie} from '@/assets/cookie'
+    
     export default {
         data(){
             return {
@@ -68,11 +77,24 @@
                         pageSize: 20
                 	}
                 },
-                nameQuery: ''
+                nameQuery: '',
+                isAdmin: false
             }
         },
         created() {
+            var self = this;
             this.initData();
+            this.$root.Bus.$on('send', function(val) {
+                self.reload();
+            });
+
+            let cookie = getCookie('userInfo');
+            if (cookie) {
+                let userInfo = JSON.parse(cookie)
+                if (userInfo.role === 'ADMIN') {
+                    this.isAdmin = true;
+                }
+            }
         },
     	components: {
     	},

@@ -10,12 +10,15 @@ Vue.use(EleUI)
 Vue.config.productionTip = false
 
 // use mock data, remove the // below. then go config/env.js.
-// require('./mock.js')
+require('./mock.js')
 
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
   router,
+  data: {
+  	Bus: new Vue()
+  },
   components: { App },
   template: '<App/>'
 })

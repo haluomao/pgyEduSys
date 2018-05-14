@@ -49,14 +49,20 @@ DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增ID',
   `name` VARCHAR(255) NOT NULL COMMENT '科目/分类名称',
-  `description` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '分类描述',
+  `description` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '科目描述',
   `price` bigint(20) NOT NULL DEFAULT 0 COMMENT '类别价格:元*100000',
   `user_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '所属账户ID',
-  `status` int(11) NOT NULL COMMENT '分类状态',
+  `status` int(11) NOT NULL COMMENT '科目状态',
   `create_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00',
   `update_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO
+    categories(id, `name`, `description`, `price`, user_id, `status`, create_time, update_time)
+VALUES
+    (1, '数学','数学', 0, 1, 0, now(), now()),
+    (2, '语文','语文', 0, 1, 0, now(), now());
 
 -- Create syntax for TABLE 'materials'
 DROP TABLE IF EXISTS `materials`;

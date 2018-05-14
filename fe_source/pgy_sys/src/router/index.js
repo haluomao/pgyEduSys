@@ -7,16 +7,22 @@ Vue.use(Router)
 
 //const login = r => require.ensure([], () => r(require('@/page/login')), 'login');
 //const addGrade = r => require.ensure([], () => r(require('@/page/addGrade')), 'addGrade');
-const categoryList = r => require.ensure([], () => r(require('@/page/categoryList')), 'categoryList');
+//const categoryList = r => require.ensure([], () => r(require('@/page/categoryList')), 'categoryList');
 const coursewareList = r => require.ensure([], () => r(require('@/page/coursewareList')), 'coursewareList');
 const addCourseware = r => require.ensure([], () => r(require('@/page/addCourseware')), 'addCourseware');
 const accountList = r => require.ensure([], () => r(require('@/page/accountList')), 'accountList');
 const gradeList = r => require.ensure([], () => r(require('@/page/gradeList')), 'gradeList');
+const contact = r => require.ensure([], () => r(require('@/page/contact')), 'contact');
+const login = r => require.ensure([], () => r(require('@/page/login')), 'login');
 
 const gradeSide = r => require.ensure([], () => r(require('@/components/gradeSide')), 'gradeSide');
 
 export default new Router({
   routes: [
+    {
+      path: '/login',
+      component: login
+    },
     {
       path: '/test',
       component: gradeSide
@@ -28,10 +34,6 @@ export default new Router({
     {
       path: '/home',
       component: Home
-    },
-    {
-      path: '/categoryList',
-      component: categoryList
     },
     {
       path: '/coursewareList',
@@ -48,6 +50,10 @@ export default new Router({
     {
       path: '/gradeList',
       component: gradeList
+    },
+    {
+      path: '/contact',
+      component: contact
     }
   ]
 })

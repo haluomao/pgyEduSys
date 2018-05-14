@@ -6,12 +6,14 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.pgy.auth.bean.CustomUser;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
 import com.pgy.controller.bean.IdRequest;
@@ -45,7 +47,8 @@ public class MaterialControllerImpl implements MaterialController {
     }
 
     @Override
-    public RestPageResponse<MaterialVO> list(@RequestBody MaterialPagedRequest request) throws Exception {
+    public RestPageResponse<MaterialVO> list(@AuthenticationPrincipal CustomUser loginUser,
+            @RequestBody MaterialPagedRequest request) throws Exception {
         log.info(new LogMessageBuilder("list material")
                 .withParameter("request", request)
                 .build());
@@ -75,7 +78,7 @@ public class MaterialControllerImpl implements MaterialController {
     }
 
     @Override
-    public RestResultResponse<List<MaterialVO>> all() throws Exception {
+    public RestResultResponse<List<MaterialVO>> all(@AuthenticationPrincipal CustomUser loginUser) throws Exception {
         log.info(new LogMessageBuilder("list all materials")
                 .build());
 
@@ -92,7 +95,8 @@ public class MaterialControllerImpl implements MaterialController {
     }
 
     @Override
-    public RestResultResponse<MaterialVO> detail(@RequestBody IdRequest idRequest) throws Exception {
+    public RestResultResponse<MaterialVO> detail(@AuthenticationPrincipal CustomUser loginUser,
+            @RequestBody IdRequest idRequest) throws Exception {
         log.info(new LogMessageBuilder("get the detail of a category")
                 .withParameter("request", idRequest)
                 .build());
@@ -106,7 +110,8 @@ public class MaterialControllerImpl implements MaterialController {
     }
 
     @Override
-    public RestResultResponse<Void> create(@RequestBody MaterialVO request) throws Exception {
+    public RestResultResponse<Void> create(@AuthenticationPrincipal CustomUser loginUser,
+            @RequestBody MaterialVO request) throws Exception {
         log.info(new LogMessageBuilder("create category")
                 .withParameter("request", request)
                 .build());
@@ -117,7 +122,8 @@ public class MaterialControllerImpl implements MaterialController {
     }
 
     @Override
-    public RestResultResponse<Void> update(@RequestBody MaterialVO request) throws Exception {
+    public RestResultResponse<Void> update(@AuthenticationPrincipal CustomUser loginUser,
+            @RequestBody MaterialVO request) throws Exception {
         log.info(new LogMessageBuilder("update category")
                 .withParameter("request", request)
                 .build());
@@ -128,7 +134,8 @@ public class MaterialControllerImpl implements MaterialController {
     }
 
     @Override
-    public RestResultResponse<Void> delete(@RequestBody IdRequest idRequest) throws Exception {
+    public RestResultResponse<Void> delete(@AuthenticationPrincipal CustomUser loginUser,
+            @RequestBody IdRequest idRequest) throws Exception {
         log.info(new LogMessageBuilder("delete category")
                 .withParameter("request", idRequest)
                 .build());

@@ -176,11 +176,11 @@
             validatePass: function(rule, value, callback){            
                 if (value === '') {
                     callback(new Error('请输入密码'));
-                  } else if (value !== this.selectTable.accountPassword) {
+                } else if (value !== this.selectTable.accountPassword) {
                     callback(new Error('两次输入密码不一致!'));
-                  } else {
+                } else {
                     callback();
-                  }
+                }
             },
             loadRoles() {
                 this.validRoles = [RoleEnum.prop[RoleEnum.TEACHER]];
@@ -260,7 +260,7 @@
                     }else{
                         throw new Error(res.message)
                     }
-                }catch(err){
+                } catch(err) {
                     this.$message({
                         type: 'error',
                         message: err.message
