@@ -14,8 +14,42 @@ import com.pgy.util.bce.bos.bean.BosConfig;
 @ConfigurationProperties(prefix = "upload")
 public class UploadConfig {
     public static class LocalConfig {
-        public String dir;
-        public String prefix;
+        private String dir;
+        private String prefix;
+        private String resPatterns;
+        private String location;
+
+        public String getDir() {
+            return dir;
+        }
+
+        public void setDir(String dir) {
+            this.dir = dir;
+        }
+
+        public String getPrefix() {
+            return prefix;
+        }
+
+        public void setPrefix(String prefix) {
+            this.prefix = prefix;
+        }
+
+        public String getResPatterns() {
+            return resPatterns;
+        }
+
+        public void setResPatterns(String resPatterns) {
+            this.resPatterns = resPatterns;
+        }
+
+        public String getLocation() {
+            return location;
+        }
+
+        public void setLocation(String location) {
+            this.location = location;
+        }
     }
 
     public enum UploadType {

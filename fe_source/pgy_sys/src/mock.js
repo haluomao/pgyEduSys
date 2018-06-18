@@ -3,6 +3,16 @@ import {baseUrl} from './config/env'
 const Mock = require('mockjs')
 //使用mockjs模拟数据
 
+Mock.mock('/api/v1/upload', (req, res) => {
+    return {
+		"success": true,
+		"result": {
+			"url" :"a.com/1.txt"
+		}
+	}
+});
+
+
 Mock.mock('/api/v1/logout', (req, res) => {
     return {
 		"success": true
@@ -65,14 +75,16 @@ Mock.mock('/api/v1/material/list', (req, res) => {
 		            "name": "category1",
 		            "description": "desc1",
 		            "price": 100,
-		            "status": "ENABLED"
+		            "status": "ENABLED",
+		            "url": "www.baidu.com"
 		        },
 		        {
 		            "id": 2,
 		            "name": "category2",
 		            "description": "desc2",
 		            "price": 200,
-		            "status": "ENABLED"
+		            "status": "ENABLED",
+		            "url": "www.baidu.com"
 		        }
 		    ]
 		}

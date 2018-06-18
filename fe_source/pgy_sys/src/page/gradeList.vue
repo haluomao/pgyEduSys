@@ -1,8 +1,8 @@
 <template>
     <div class="fillcontain">
         <div>
-            <el-button type="primary" round @click="handleAdd()">添加年级</el-button>
-            <el-button type="success" icon="el-icon-refresh" circle @click="reload()"></el-button>
+            <el-button type="primary" class="newBtnStyle" round @click="handleAdd()">添加年级</el-button>
+            <el-button type="primary" class="newBtnStyle" icon="el-icon-refresh" circle @click="reloadGrade()"></el-button>
         </div>
         <div class="table_container">
             <el-table :data="tableData" style="width: 100%">
@@ -63,13 +63,15 @@
             }
         },
         created() {
-            this.reload();
+            this.checkLogin();
+            this.reloadGrade();
         },
         props:['role'],
+        inject: ['reloadAllPages'],
     	components: {
     	},
         methods: {
-            async reload(){
+            async reloadGrade(){
                 try{
                 	this.getGrades();
                 } catch(err) {
@@ -116,6 +118,8 @@
                             message: '删除成功'
                         });
                         this.tableData.splice(index, 1);
+                        this.reloadGrade();
+                        this.reloadAllPages();
                     } else {
                         throw new Error(res.message)
                     }
@@ -162,7 +166,8 @@
                             type: 'success',
                             message: '操作成功'
                         });
-                        this.reload();
+                        this.reloadGrade();
+                        this.reloadAllPages();
                     } else {
                         this.$message({
                             type: 'error',

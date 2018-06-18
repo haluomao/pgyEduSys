@@ -10,6 +10,7 @@ import org.apache.ibatis.type.BaseTypeHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.stereotype.Component;
 
 import com.pgy.config.DbConfig;
@@ -25,6 +26,7 @@ public class DbFactory extends AbstractDbFactory {
 
     private static final String TYPE_HANDLERS_PACKAGE = "com.pgy";
     public static final String SQL_SESSION_FACTORY = "sqlSessionFactory";
+    public static final String TRANSACTION_MANAGER_CONFIG = "transactionManagerConfig";
 
     private final DataSource dataSource;
 
@@ -40,5 +42,10 @@ public class DbFactory extends AbstractDbFactory {
     public SqlSessionFactory createSqlSessionFactoryBean() throws Exception {
         return createSqlSessionFactoryBean(dataSource,
                 "classpath*:com/pgy/mapper/*Mapper.xml");
+    }
+
+    @Bean(name = TRANSACTION_MANAGER_CONFIG)
+    public DataSourceTransactionManager createConfigTransactionManager() {
+        return super.createTransactionManager(dataSource);
     }
 }

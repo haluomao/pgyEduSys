@@ -18,9 +18,15 @@ public interface MaterialManager {
 
     Material detail(long id);
 
+    long getGradeId(long materialId);
+
+    long getCategoryId(long materialId);
+
     int create(Material entity);
 
     int update(Material entity);
 
     void delete(List<Long> ids);
+
+    void updateWithRelations(final Material entity, long gradeId, long cateId);
 }

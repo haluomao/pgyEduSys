@@ -2,14 +2,16 @@ package com.pgy.controller.material;
 
 import java.util.List;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.pgy.auth.bean.CustomUser;
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.material.bean.MaterialPagedRequest;
 import com.pgy.controller.material.bean.MaterialVO;
+import com.pgy.rest.IdRequest;
 import com.pgy.rest.RestPageResponse;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The category controller.
@@ -36,4 +38,7 @@ public interface MaterialController {
 
     @RequestMapping("/delete")
     RestResultResponse<Void> delete(CustomUser loginUser, IdRequest idRequest) throws Exception;
+
+    @RequestMapping(value = "/download", method = RequestMethod.GET)
+    ResponseEntity<byte[]> download(CustomUser loginUser, Long idRequest) throws Exception;
 }

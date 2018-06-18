@@ -8,7 +8,7 @@ module.exports = {
   dev: {
 
     // Paths
-    assetsSubDirectory: 'static/asset',
+    assetsSubDirectory: 'asset/',
     assetsPublicPath: '/',
     proxyTable: {
         // '/api/**': {  //使用"/api"来代替"http://f.apiplus.c" 
@@ -50,8 +50,8 @@ module.exports = {
 
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static/asset',
-    assetsPublicPath: '/',
+    assetsSubDirectory: 'assets/',
+    assetsPublicPath: './',
 
     /**
      * Source Maps

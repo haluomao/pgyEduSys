@@ -9,6 +9,7 @@ import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.Material;
 import com.pgy.material.bean.MaterialStatus;
 import com.pgy.material.bean.PublicLevel;
+import com.pgy.material.bean.TeachType;
 import com.pgy.mybatis.DbFactory;
 import com.pgy.test.BizDbTestCase;
 import com.pgy.test.MockDatabase;
@@ -64,7 +65,7 @@ public class MaterialMapperTest extends BizDbTestCase {
 
     @Test
     public void query() {
-        assertEquals(Lists.newArrayList(buildMaterial1(), buildMaterial2()),
+        assertEquals(Lists.newArrayList(buildMaterial2(), buildMaterial1()),
                 materialMapper.query(buildMaterialCriteria()));
     }
 
@@ -80,6 +81,7 @@ public class MaterialMapperTest extends BizDbTestCase {
         material.setName("material1");
         material.setDescription("desc1");
         material.setFileType(FileType.TXT);
+        material.setTeachType(TeachType.COURSEWARE);
         material.setUrl("url1");
         material.setIcon("icon1");
         material.setAuthorId(1);
@@ -95,6 +97,7 @@ public class MaterialMapperTest extends BizDbTestCase {
         material.setName("material2");
         material.setDescription("desc2");
         material.setFileType(FileType.TXT);
+        material.setTeachType(TeachType.CLASSIC);
         material.setUrl("url2");
         material.setIcon("icon2");
         material.setAuthorId(1);

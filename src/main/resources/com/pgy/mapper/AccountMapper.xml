@@ -22,7 +22,7 @@
         FROM
             accounts
         WHERE
-            account_status != -1
+            account_status != -1 AND role > 1
             <if test="ids.size() > 0">
                 AND id IN
                 <foreach item="item" collection="ids" open="(" close=")" separator=",">
@@ -50,7 +50,7 @@
         FROM
             accounts
         WHERE
-            account_status != -1
+            account_status != -1 AND role > 1
             <if test="query.status > 0">
                 AND account_status = #{query.status}
             </if>
@@ -60,6 +60,7 @@
             <if test="query.accountName != null">
                 AND account_name = #{query.accountName}
             </if>
+        ORDER BY id desc
     </select>
 
     <select id="detail" parameterType="map"
@@ -81,7 +82,7 @@
         FROM
             accounts
         WHERE
-            account_status != -1 AND id=#{id}
+            account_status != -1 AND role > 1 AND id=#{id}
     </select>
 
     <select id="getAccount" parameterType="map"
@@ -176,6 +177,18 @@
             id = #{id}
     </update>
 
+    <update id="updateStatus" parameterType="map">
+        UPDATE
+            accounts
+        SET
+            account_status = #{status}
+        WHERE
+            id IN
+            <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+
     <update id="delete" parameterType="list">
         UPDATE
             accounts
@@ -194,7 +207,7 @@
         FROM
             accounts
         WHERE
-            account_status != -1
+            account_status != -1 AND role > 1
         AND
             account_name = #{name}
         AND
@@ -209,8 +222,23 @@
         WHERE
             account_status != -1
         AND
+            role > 1
+        AND
             parent_id = #{parentId}
         AND
             role = #{role}
+    </select>
+
+    <select id="getAccountCount" parameterType="map" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+            accounts
+        WHERE
+            account_status != -1
+        AND
+            id != #{id}
+        AND
+            account_name = #{name}
     </select>
 </mapper>

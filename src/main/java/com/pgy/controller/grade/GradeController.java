@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.grade.bean.GradePagedRequest;
 import com.pgy.controller.grade.bean.GradeVO;
+import com.pgy.rest.IdRequest;
 import com.pgy.rest.RestPageResponse;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The grade controller.

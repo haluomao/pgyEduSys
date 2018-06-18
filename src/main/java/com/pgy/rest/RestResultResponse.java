@@ -1,4 +1,4 @@
-package com.pgy.controller.bean;
+package com.pgy.rest;
 
 /**
  * The interface to specify the result target.

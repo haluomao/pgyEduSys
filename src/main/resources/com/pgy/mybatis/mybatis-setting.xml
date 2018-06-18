@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
     <settings>
-        <setting name="logImpl" value="STDOUT_LOGGING" />
+        <!--<setting name="logImpl" value="STDOUT_LOGGING" />-->
         <!-- Socket timeout 600 seconds -->
         <setting name="defaultStatementTimeout" value="600"/>
         <setting name="mapUnderscoreToCamelCase" value="true" />

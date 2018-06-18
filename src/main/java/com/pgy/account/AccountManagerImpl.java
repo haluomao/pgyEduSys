@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Function;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.pgy.account.bean.Account;
 import com.pgy.account.bean.AccountConfig;
@@ -64,6 +66,11 @@ public class AccountManagerImpl implements AccountManager {
     }
 
     @Override
+    public void updateStatus(List<Long> ids, int status) {
+        accountMapper.updateStatus(ids, status);
+    }
+
+    @Override
     public List<Account> getAccounts(List<Long> ids) {
         return accountMapper.listByIds(ids);
     }
@@ -91,7 +98,8 @@ public class AccountManagerImpl implements AccountManager {
 
     @Override
     public AccountConfig getAccountConfig(long accountId) {
-        return accountConfigMapper.listByAccountIds(Lists.newArrayList(accountId)).get(0);
+        List<AccountConfig> configs = accountConfigMapper.listByAccountIds(Lists.newArrayList(accountId));
+        return CollectionUtils.isNotEmpty(configs) ? configs.get(0) : null;
     }
 
     @Override
@@ -113,5 +121,11 @@ public class AccountManagerImpl implements AccountManager {
     @Override
     public void updateAccountStorage(AccountConfig accountConfig) {
         accountConfigMapper.updateStorage(accountConfig);
+    }
+
+    @Override
+    public boolean isNameDuplicate(long id, String name) {
+        Preconditions.checkArgument(StringUtils.isNotBlank(name));
+        return accountMapper.getAccountCount(id, name) > 0;
     }
 }

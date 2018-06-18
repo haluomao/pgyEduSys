@@ -23,9 +23,10 @@ import com.pgy.auth.bean.Role;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
 import com.pgy.controller.account.bean.AccountVO;
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
+import com.pgy.rest.IdListRequest;
+import com.pgy.rest.IdRequest;
 import com.pgy.rest.RestResponseFactory;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The impl of {@link AccountController}.
@@ -50,9 +51,10 @@ public class AccountControllerImpl implements AccountController {
                 .withMessage("list account")
                 .withParameter("customUser", customUser)
                 .build());
+
         List<Account> accounts = accountManager.getAccountsByQuery(
                 AccountRequest.Builder.anAccountRequest()
-                        .withParentId(0L)//customUser.getAccountId())
+                        .withParentId(customUser.getAccountId())
                         .build());
         final Map<Long, AccountConfig> accountIdConfigMap = accountManager.getAccountConfigs(
                 CollectionHelper.transform(accounts,
@@ -84,8 +86,8 @@ public class AccountControllerImpl implements AccountController {
                 .withParameter("customUser", customUser)
                 .withParameter("request", request)
                 .build());
-        //long accountId = customUser.getRole().isAdmin() ? request.getId() : customUser.getAccountId();
-        long accountId = 1L;
+
+        long accountId = request.getId();
         Account account = accountManager.detail(accountId);
         AccountVO.Builder builder = AccountVO.Builder.anAccountVO().withAccount(account);
         if (account.getRole() == Role.ADMIN) {
@@ -102,12 +104,14 @@ public class AccountControllerImpl implements AccountController {
         log.info(new LogMessageBuilder()
                 .withMessage("create account")
                 .withParameter("request", accountVO)
+                .withParameter("loginUser", customUser)
                 .build());
-// TODO check duplicate name.
+        if (accountManager.isNameDuplicate(accountVO.getId(), accountVO.getAccountName())) {
+            return RestResponseFactory.newFailedResponse("用户名重复");
+        }
+        // TODO
 //        checkLimit(customUser.getAccountId(), accountVO.getRole());
-//
-//        accountVO.setParentId(customUser.getAccountId());
-        accountVO.setParentId(0L);
+        accountVO.setParentId(customUser.getAccountId());
         accountVO.setStatus(AccountStatus.ENABLED);
         Account account = accountVO.buildAccount();
 
@@ -148,6 +152,28 @@ public class AccountControllerImpl implements AccountController {
                 .build());
         //checkParentId(customUser.getAccountId(), request.getId());
         accountManager.delete(Lists.newArrayList(request.getId()));
+        return RestResponseFactory.newSuccessfulEmptyResponse();
+    }
+
+    @Override
+    public RestResultResponse<Void> enable(@AuthenticationPrincipal CustomUser customUser,
+            @RequestBody IdListRequest request) throws Exception {
+        log.info(new LogMessageBuilder()
+                .withMessage("enable account")
+                .withParameter("request", request)
+                .build());
+        accountManager.updateStatus(request.getIdList(), AccountStatus.ENABLED.getValue());
+        return RestResponseFactory.newSuccessfulEmptyResponse();
+    }
+
+    @Override
+    public RestResultResponse<Void> disable(@AuthenticationPrincipal CustomUser customUser,
+            @RequestBody IdListRequest request) throws Exception {
+        log.info(new LogMessageBuilder()
+                .withMessage("disable account")
+                .withParameter("request", request)
+                .build());
+        accountManager.updateStatus(request.getIdList(), AccountStatus.DISABLED.getValue());
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }
 

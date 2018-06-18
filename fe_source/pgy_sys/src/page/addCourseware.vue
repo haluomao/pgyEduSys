@@ -3,29 +3,42 @@
 		<el-container>
 			<el-main>
 		<el-form ref="form" :model="form" label-width="80px" :rules="rules">
+      <el-form-item label="id：" v-show="false">
+        <el-input v-model="form.id"></el-input>
+      </el-form-item>
+      <el-form-item label="类型：" prop="type">
+        <el-select v-model="form.teachType" placeholder="请选择类型" :disabled="isEdit">
+          <el-option
+            v-for="item in types"
+            :key="item.value"
+            :label="item.text"
+            :value="item.code">
+          </el-option>
+        </el-select>
+      </el-form-item>
 		  <el-form-item label="名称：" prop="name">
 		    <el-input v-model="form.name"></el-input>
 		  </el-form-item>
       <el-form-item label="作者：">
         <el-input v-model="form.author"></el-input>
       </el-form-item>
-		  <el-form-item label="年级：" prop="grade">
-		    <el-select v-model="form.grade" placeholder="请选择所属年级">
+		  <el-form-item label="年级：" prop="gradeId">
+		    <el-select v-model="form.gradeId" placeholder="请选择所属年级">
           <el-option
             v-for="item in grades"
-            :key="item.value"
+            :key="item.id"
             :label="item.name"
-            :value="item.value">
+            :value="item.id">
           </el-option>
 		    </el-select>
 		  </el-form-item>
-      <el-form-item label="科目：" prop="category">
-        <el-select v-model="form.category" placeholder="请选择所属科目">
+      <el-form-item label="科目：" prop="categoryId">
+        <el-select v-model="form.categoryId" placeholder="请选择所属科目">
           <el-option
             v-for="item in categories"
-            :key="item.value"
+            :key="item.id"
             :label="item.name"
-            :value="item.value">
+            :value="item.id">
           </el-option>
         </el-select>
       </el-form-item>
@@ -34,13 +47,12 @@
 		  </el-form-item>
 		  <el-form-item label="缩略图：" prop="avatar">
 		  	<el-upload
-        v-model="form.avatar"
-        list-type="picture-card"
-			  :action="handonAction()"
-			  :show-file-list="false"
-			  :on-success="handleUploadSuccess"
-			  :before-upload="beforeAvatarUpload"
-			  :on-change="uploadFile">
+          v-model="form.avatar"
+          list-type="picture-card"
+  			  :action="handonAction()"
+  			  :show-file-list="false"
+  			  :on-success="handleUploadSuccess"
+  			  :before-upload="beforeAvatarUpload">
 			  <img v-if="imageUrl" :src="imageUrl" class="avatar">
 			  <i v-else class="el-icon-plus"></i>
 			</el-upload>	
@@ -51,15 +63,15 @@
 			  class="upload-demo"
 			  drag
 			  :action="handonAction()"
-			  :on-success="handleUploadSuccess"
+			  :on-success="handleCoursewareUploadSuccess"
 			  :before-upload="beforeCoursewareUpload">
 			  <i class="el-icon-upload"></i>
 			  <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
 			</el-upload>	
 		  </el-form-item>
 		  <el-form-item>
-		    <el-button type="primary" @click="onSubmit('form')">立即创建</el-button>
-		    <el-button>取消</el-button>
+		    <el-button type="primary" class="newBtnStyle" @click="onSubmit('form')">立即创建</el-button>
+		    <el-button @click="onCancel()">取消</el-button>
 		  </el-form-item>
 		</el-form>	
 			</el-main>
@@ -69,9 +81,16 @@
 </template>
 
 <script>
-import {baseUploadPath} from '@/config/env'
-import {upload, allGrades, allCategories, updateMaterial, createMaterial} from '@/api/getData'
+import _ from 'lodash'
+import { baseUploadPath } from '@/config/env'
+import { MaterialTypeEnum } from '@/config/enum' 
+import {upload, allGrades, allCategories, updateMaterial, createMaterial, detailMaterial} from '@/api/getData'
 
+const defaultForm = {
+  id: 0,
+  gradeId: '',
+  categoryId: ''
+};
 export default {
     data() {
       return {
@@ -79,25 +98,26 @@ export default {
       	imageUrl: '',
         grades: [],
         categories: [],
-        form: {
-        },
+        isEdit: false,
+        form: defaultForm,
+        types: [],
         rules: {
+            teachType: [
+                { required: true, message: '请选择类型', trigger: 'blur' }
+            ],
             name: [
                 { required: true, message: '请输入课件名', trigger: 'blur' },
                 { min: 1, max: 50, message: '长度在 1 到 50 个字符', trigger: 'blur' }
             ],
-            grade: [
+            gradeId: [
                 { required: true, message: '请选择年级', trigger: 'blur' }
             ],
-            category: [
+            categoryId: [
                 { required: true, message: '请选择科目', trigger: 'blur' }
             ],
             description: [
                 { required: true, message: '请输入描述', trigger: 'blur' },
                 { min: 1, max: 1000, message: '长度在 1 到 1000 个字符', trigger: 'blur' }
-            ],
-            avatar:[
-                { required: true, message: '请上传图片', trigger: 'blur' }
             ],
             material:[
                 { required: true, message: '请上传课件', trigger: 'blur' }
@@ -105,17 +125,55 @@ export default {
         }
       }
     },
-    mounted() {
-      this.getAllGrades();
-      this.getAllCategories();
+    inject: ['reloadAllPages'],
+    created() {
+      this.checkLogin();
+      this.reload();
+
+      var self = this;
+      this.$root.Bus.$on('addCourseware', function() {
+          self.reload();
+      });
     },
     methods: {
+      reload() {
+        this.types = [];
+        for(var key in MaterialTypeEnum.prop){
+          this.types.push(MaterialTypeEnum.prop[key]);
+        }
+        this.getAllGrades();
+        this.getAllCategories();
+
+        if (this.$route.params.id > 0){
+          this.form.id = this.$route.params.id;
+          this.isEdit = true;
+          this.detail(this.form.id);
+        } else {
+          this.form = defaultForm;
+          this.isEdit = false;
+        }
+      },
+      async detail(cid) {
+        try{
+          const res = await detailMaterial({id: cid});
+          if (res.success === true) {
+            _.assign(this.form, res.result);
+          } else {
+            this.checkLogin();
+            console.log("获取详情失败");
+          }
+        } catch(e) {
+          this.checkLogin();
+          console.log(e);
+        }
+      },
       async getAllGrades() {
         try{
           const res = await allGrades();
           if (res.success === true) {
             this.grades = res.result;
           } else {
+            this.checkLogin();
             console.log("获取年级失败");
           }
         } catch(e) {
@@ -123,11 +181,17 @@ export default {
         }
       },
       async getAllCategories() {
-        const res = await allCategories();
-        if (res.success === true) {
-          this.categories = res.result;
-        } else {
-          console.log("获取科目失败");
+        try{
+          const res = await allCategories();
+          if (res.success === true) {
+            this.categories = res.result;
+          } else {
+            this.checkLogin();
+            console.log("获取科目失败");
+          }
+        } catch(e) {
+          this.checkLogin();
+          console.log(e);
         }
       },
       validForm(formName) {
@@ -150,14 +214,19 @@ export default {
               let formData = _.assign(this.form);   
 
               var res;
-              if (this.selectTable.id > 0) {
+              if (this.form.id > 0) {
                   res = await updateMaterial(formData);
               } else {
                   res = await createMaterial(formData);
               }
               if (res.success === true) {
                   this.$message({ type: 'success', message: '操作成功'});
+                  let type = MaterialTypeEnum.prop[this.form.teachType].value;
+                  this.$router.push('/coursewareList' + type);
+                  this.form = defaultForm;
+                  this.$root.Bus.$emit('coursewareList', {});
               } else {
+                  this.checkLogin();
                   this.$message({ type: 'error', message: res.message });
               }
           } catch(err) {
@@ -165,9 +234,22 @@ export default {
           }
       },
       handleUploadSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
+        if (res.success === true) {
+            this.imageUrl = res.result.url;
+            this.form.avatar = this.imageUrl;
+        } else {
+            this.$message({ type: 'error', message: res.message });
+        }
+      },
+      handleCoursewareUploadSuccess(res) {
+        if (res.success === true) {
+            this.form.material = res.result.url;
+        } else {
+            this.$message({ type: 'error', message: res.message });
+        }
       },
       beforeUpload(file, size) {
+        this.checkLogin();
       	const isLtSize = file.size / 1024 / 1024 < size;
 
         if (!isLtSize) {
@@ -184,8 +266,8 @@ export default {
       handonAction: function() {
       	return baseUploadPath;
       },
-      uploadFile(file) {
-      	console.log(file);
+      onCancel() {
+        this.$router.push({path:'/coursewareList1'});
       }
     }
   }

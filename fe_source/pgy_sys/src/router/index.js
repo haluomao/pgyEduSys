@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
-import Home from '@/components/Home'
 
 Vue.use(Router)
 
@@ -12,6 +11,7 @@ const coursewareList = r => require.ensure([], () => r(require('@/page/coursewar
 const addCourseware = r => require.ensure([], () => r(require('@/page/addCourseware')), 'addCourseware');
 const accountList = r => require.ensure([], () => r(require('@/page/accountList')), 'accountList');
 const gradeList = r => require.ensure([], () => r(require('@/page/gradeList')), 'gradeList');
+const home = r => require.ensure([], () => r(require('@/page/home')), 'home');
 const contact = r => require.ensure([], () => r(require('@/page/contact')), 'contact');
 const login = r => require.ensure([], () => r(require('@/page/login')), 'login');
 
@@ -33,14 +33,26 @@ export default new Router({
     },
     {
       path: '/home',
-      component: Home
+      component: home
     },
     {
-      path: '/coursewareList',
+      path: '/coursewareList1',
       component: coursewareList
     },
     {
-      path: '/addCourseware',
+      path: '/coursewareList2',
+      component: coursewareList
+    },
+    {
+      path: '/coursewareList3',
+      component: coursewareList
+    },
+    {
+      path: '/coursewareList4',
+      component: coursewareList
+    },
+    {
+      path: '/addCourseware/:id',
       component: addCourseware
     },
     {

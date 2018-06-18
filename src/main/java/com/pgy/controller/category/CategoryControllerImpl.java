@@ -16,14 +16,14 @@ import com.pgy.category.CategoryManager;
 import com.pgy.category.bean.Category;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.category.bean.CategoryPagedRequest;
 import com.pgy.controller.category.bean.CategoryVO;
+import com.pgy.rest.IdRequest;
 import com.pgy.rest.PageHelper;
 import com.pgy.rest.RestPage;
 import com.pgy.rest.RestPageResponse;
 import com.pgy.rest.RestResponseFactory;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The impl of {@link CategoryController}.

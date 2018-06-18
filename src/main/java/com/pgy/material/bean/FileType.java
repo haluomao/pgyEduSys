@@ -1,5 +1,7 @@
 package com.pgy.material.bean;
 
+import com.google.common.collect.Sets;
+
 /**
  * File type.
  *
@@ -12,7 +14,9 @@ public enum FileType {
     FLASH(3),
     VIDEO(4),
     DOC(5),
-    EXCEL(6);
+    EXCEL(6),
+    HTML(7),
+    ZIP(8);
 
     int value;
 
@@ -29,6 +33,15 @@ public enum FileType {
             if (status.value == value) {
                 return status;
             }
+        }
+        return null;
+    }
+
+    public static FileType parseStr(String value) {
+        if (Sets.newHashSet("application/zip", "application/x-zip-compressed",
+                "application/octet-stream")
+                .contains(value.toLowerCase())) {
+            return ZIP;
         }
         return null;
     }

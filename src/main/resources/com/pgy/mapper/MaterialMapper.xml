@@ -11,6 +11,7 @@
             name,
             description,
             file_type AS fileType,
+            teach_type AS teachType,
             url,
             icon,
             author_id AS authorId,
@@ -27,15 +28,7 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="authorId > 0">
-                AND author_id = authorId
-            </if>
-            <if test="publicLevel != null">
-                AND public_level = publicLevel
-            </if>
-            <if test="fileType != null">
-                AND file_type = fileType
-            </if>
+        ORDER BY id desc
     </select>
 
     <select id="query" parameterType="map"
@@ -45,6 +38,7 @@
             name,
             description,
             file_type AS fileType,
+            teach_type AS teachType,
             url,
             icon,
             author_id AS authorId,
@@ -55,6 +49,12 @@
             materials
         WHERE
             status != -1
+            <if test="criteria.ids != null and criteria.ids.size() > 0">
+                AND id IN
+                <foreach item="item" collection="criteria.ids" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
             <if test="criteria.name != null">
                 <bind name="pattern" value="'%' + criteria.name + '%'"/>
                 AND name like #{pattern}
@@ -65,9 +65,13 @@
             <if test="criteria.fileType != null">
                 AND file_type = #{criteria.fileType}
             </if>
+            <if test="criteria.teachType != null">
+                AND teach_type = #{criteria.teachType}
+            </if>
             <if test="criteria.publicLevel != null">
                 AND public_level = #{criteria.publicLevel}
             </if>
+        ORDER BY id desc
         LIMIT
             #{criteria.offset}, #{criteria.pageSize}
     </select>
@@ -79,6 +83,7 @@
             name,
             description,
             file_type AS fileType,
+            teach_type AS teachType,
             url,
             icon,
             author_id AS authorId,
@@ -100,6 +105,7 @@
             (name,
              description,
              file_type,
+             teach_type,
              url,
              icon,
              author_id,
@@ -112,6 +118,7 @@
             (#{name},
              #{description},
              #{fileType},
+             #{teachType},
              #{url},
              #{icon},
              #{authorId},
@@ -124,6 +131,7 @@
             name = #{name},
             description = #{description},
             file_type = #{fileType},
+            teach_type = #{teachType},
             url = #{url},
             icon = #{icon},
             uploader_id = #{uploaderId},
@@ -138,6 +146,7 @@
             name = #{name},
             description = #{description},
             file_type = #{fileType},
+            teach_type = #{teachType},
             url = #{url},
             icon = #{icon},
             uploader_id = #{uploaderId},

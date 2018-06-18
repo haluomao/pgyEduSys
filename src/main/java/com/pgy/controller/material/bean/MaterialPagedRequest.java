@@ -3,6 +3,7 @@ package com.pgy.controller.material.bean;
 import com.google.common.base.Objects;
 import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.PublicLevel;
+import com.pgy.material.bean.TeachType;
 import com.pgy.rest.BasePagedRequest;
 import com.pgy.rest.OrderType;
 
@@ -22,6 +23,7 @@ public class MaterialPagedRequest extends BasePagedRequest {
         private long categoryId;
         private long gradeId;
         private FileType fileType;
+        private TeachType teachType;
         private PublicLevel publicLevel;
         private long authorId;
 
@@ -72,6 +74,11 @@ public class MaterialPagedRequest extends BasePagedRequest {
             return this;
         }
 
+        public Builder withTeachType(TeachType teachType) {
+            this.teachType = teachType;
+            return this;
+        }
+
         public Builder withPublicLevel(PublicLevel publicLevel) {
             this.publicLevel = publicLevel;
             return this;
@@ -92,6 +99,7 @@ public class MaterialPagedRequest extends BasePagedRequest {
             materialPagedRequest.setCategoryId(categoryId);
             materialPagedRequest.setGradeId(gradeId);
             materialPagedRequest.setFileType(fileType);
+            materialPagedRequest.setTeachType(teachType);
             materialPagedRequest.setPublicLevel(publicLevel);
             materialPagedRequest.setAuthorId(authorId);
             return materialPagedRequest;
@@ -103,6 +111,7 @@ public class MaterialPagedRequest extends BasePagedRequest {
     private long categoryId;
     private long gradeId;
     private FileType fileType;
+    private TeachType teachType;
     private PublicLevel publicLevel;
     private long authorId;
 
@@ -158,6 +167,35 @@ public class MaterialPagedRequest extends BasePagedRequest {
         this.authorId = authorId;
     }
 
+    public TeachType getTeachType() {
+        return teachType;
+    }
+
+    public void setTeachType(TeachType teachType) {
+        this.teachType = teachType;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder("MaterialPagedRequest{");
+        builder.append("name=");
+        builder.append(name);
+        builder.append(", categoryId=");
+        builder.append(categoryId);
+        builder.append(", gradeId=");
+        builder.append(gradeId);
+        builder.append(", fileType=");
+        builder.append(fileType);
+        builder.append(", teachType=");
+        builder.append(teachType);
+        builder.append(", publicLevel=");
+        builder.append(publicLevel);
+        builder.append(", authorId=");
+        builder.append(authorId);
+        builder.append('}');
+        return builder.toString();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -175,31 +213,13 @@ public class MaterialPagedRequest extends BasePagedRequest {
                 && authorId == that.authorId
                 && Objects.equal(name, that.name)
                 && fileType == that.fileType
+                && teachType == that.teachType
                 && publicLevel == that.publicLevel;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(super.hashCode(), name, categoryId, gradeId, fileType, publicLevel, authorId);
+        return Objects.hashCode(super.hashCode(), name, categoryId, gradeId, fileType, teachType,
+                publicLevel, authorId);
     }
-
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder("MaterialPagedRequest{");
-        builder.append("name=");
-        builder.append(name);
-        builder.append(", categoryId=");
-        builder.append(categoryId);
-        builder.append(", gradeId=");
-        builder.append(gradeId);
-        builder.append(", fileType=");
-        builder.append(fileType);
-        builder.append(", publicLevel=");
-        builder.append(publicLevel);
-        builder.append(", authorId=");
-        builder.append(authorId);
-        builder.append('}');
-        return builder.toString();
-    }
-
 }

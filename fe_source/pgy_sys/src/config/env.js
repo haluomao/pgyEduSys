@@ -11,15 +11,15 @@ let routerMode = 'history';
 let baseUploadPath;
 
 if (process.env.NODE_ENV == 'development') {
-	// baseUrl = 'http://mockserver/';
- //    baseUploadPath = 'http://mockserver/api/upload';
+	baseUrl = 'http://mockserver';
+    baseUploadPath = 'http://mockserver/api/v1/upload';
 
     // Use mock data,(goto main.js first) remove the // below. then go api/getData.js.
- 	baseUrl = 'http://localhost:8899/';
- 	baseUploadPath = 'http://localhost:8899/api/upload';
+ 	// baseUrl = 'http://localhost:8899/';
+ 	// baseUploadPath = '/api/v1/upload';
 } else {
-	baseUrl = 'http://ip:7000';
-    baseUploadPath = 'http://ip:7000/img/';
+	baseUrl = 'http://180.76.106.174:8080';
+    baseUploadPath = 'http://180.76.106.174:8080/api/v1/upload';
 }
 
 export {

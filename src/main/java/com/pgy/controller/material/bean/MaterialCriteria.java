@@ -6,6 +6,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.PublicLevel;
+import com.pgy.material.bean.TeachType;
 import com.pgy.rest.OrderType;
 
 /**
@@ -22,6 +23,7 @@ public class MaterialCriteria {
         private Long gradeId;
         private Long authorId;
         private FileType fileType;
+        private TeachType teachType;
         private PublicLevel publicLevel;
         private int pageNo = 1;
         private int pageSize = 10;
@@ -65,6 +67,11 @@ public class MaterialCriteria {
             return this;
         }
 
+        public Builder withTeachType(TeachType teachType) {
+            this.teachType = teachType;
+            return this;
+        }
+
         public Builder withPageNo(int pageNo) {
             this.pageNo = pageNo;
             return this;
@@ -98,6 +105,7 @@ public class MaterialCriteria {
             materialCriteria.setCategoryId(categoryId);
             materialCriteria.setAuthorId(authorId);
             materialCriteria.setFileType(fileType);
+            materialCriteria.setTeachType(teachType);
             materialCriteria.setPublicLevel(publicLevel);
             materialCriteria.setPageNo(pageNo);
             materialCriteria.setPageSize(pageSize);
@@ -113,11 +121,20 @@ public class MaterialCriteria {
     private Long gradeId;
     private Long authorId;
     private FileType fileType;
+    private TeachType teachType;
     private PublicLevel publicLevel;
     private int pageNo;
     private int pageSize;
     private OrderType order;
     private String orderBy;
+
+    public TeachType getTeachType() {
+        return teachType;
+    }
+
+    public void setTeachType(TeachType teachType) {
+        this.teachType = teachType;
+    }
 
     public int getLimit() {
         return pageSize;
@@ -220,6 +237,8 @@ public class MaterialCriteria {
         final StringBuilder builder = new StringBuilder("MaterialCriteria{");
         builder.append("name=");
         builder.append(name);
+        builder.append(", ids=");
+        builder.append(ids);
         builder.append(", categoryId=");
         builder.append(categoryId);
         builder.append(", gradeId=");
@@ -228,6 +247,8 @@ public class MaterialCriteria {
         builder.append(authorId);
         builder.append(", fileType=");
         builder.append(fileType);
+        builder.append(", teachType=");
+        builder.append(teachType);
         builder.append(", publicLevel=");
         builder.append(publicLevel);
         builder.append(", pageNo=");
@@ -254,10 +275,12 @@ public class MaterialCriteria {
         return pageNo == that.pageNo
                 && pageSize == that.pageSize
                 && Objects.equal(name, that.name)
+                && Objects.equal(ids, that.ids)
                 && Objects.equal(categoryId, that.categoryId)
                 && Objects.equal(gradeId, that.gradeId)
                 && Objects.equal(authorId, that.authorId)
                 && fileType == that.fileType
+                && teachType == that.teachType
                 && publicLevel == that.publicLevel
                 && order == that.order
                 && Objects.equal(orderBy, that.orderBy);
@@ -265,6 +288,7 @@ public class MaterialCriteria {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(name, categoryId, gradeId, authorId, fileType, publicLevel, pageNo, pageSize, order, orderBy);
+        return Objects.hashCode(name, ids, categoryId, gradeId, authorId, fileType, teachType, publicLevel, pageNo,
+                pageSize, order, orderBy);
     }
 }

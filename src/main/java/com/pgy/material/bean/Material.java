@@ -12,6 +12,7 @@ public class Material {
     private String name;
     private String description;
     private FileType fileType;
+    private TeachType teachType;
     private String url;
     private String icon;
     private long authorId;
@@ -99,6 +100,43 @@ public class Material {
         this.publicLevel = publicLevel;
     }
 
+    public TeachType getTeachType() {
+        return teachType;
+    }
+
+    public void setTeachType(TeachType teachType) {
+        this.teachType = teachType;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder("Material{");
+        builder.append("id=");
+        builder.append(id);
+        builder.append(", name=");
+        builder.append(name);
+        builder.append(", description=");
+        builder.append(description);
+        builder.append(", fileType=");
+        builder.append(fileType);
+        builder.append(", teachType=");
+        builder.append(teachType);
+        builder.append(", url=");
+        builder.append(url);
+        builder.append(", icon=");
+        builder.append(icon);
+        builder.append(", authorId=");
+        builder.append(authorId);
+        builder.append(", uploaderId=");
+        builder.append(uploaderId);
+        builder.append(", status=");
+        builder.append(status);
+        builder.append(", publicLevel=");
+        builder.append(publicLevel);
+        builder.append('}');
+        return builder.toString();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -114,6 +152,7 @@ public class Material {
                 && Objects.equal(name, material.name)
                 && Objects.equal(description, material.description)
                 && fileType == material.fileType
+                && teachType == material.teachType
                 && Objects.equal(url, material.url)
                 && Objects.equal(icon, material.icon)
                 && status == material.status
@@ -122,33 +161,7 @@ public class Material {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, name, description, fileType, url, icon, authorId, uploaderId, status, publicLevel);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder builder = new StringBuilder("Material{");
-        builder.append("id=");
-        builder.append(id);
-        builder.append(", name=");
-        builder.append(name);
-        builder.append(", description=");
-        builder.append(description);
-        builder.append(", fileType=");
-        builder.append(fileType);
-        builder.append(", url=");
-        builder.append(url);
-        builder.append(", icon=");
-        builder.append(icon);
-        builder.append(", authorId=");
-        builder.append(authorId);
-        builder.append(", uploaderId=");
-        builder.append(uploaderId);
-        builder.append(", status=");
-        builder.append(status);
-        builder.append(", publicLevel=");
-        builder.append(publicLevel);
-        builder.append('}');
-        return builder.toString();
+        return Objects.hashCode(id, name, description, fileType, teachType, url, icon, authorId,
+                uploaderId, status, publicLevel);
     }
 }

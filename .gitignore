@@ -1,6 +1,8 @@
 .gradle/*
 logs/*
 out/*
+output/*
 build/*
 upload/
-src/main/resources/static/*
+src/main/resources/static/**
+*online.yml

@@ -1,9 +1,13 @@
 package com.pgy.controller.material.bean;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.Material;
 import com.pgy.material.bean.MaterialStatus;
+import com.pgy.material.bean.TeachType;
 
 /**
  * The material VO.
@@ -19,8 +23,11 @@ public class MaterialVO {
         private String name;
         private String description;
         private FileType fileType;
-        private String icon;
+        private TeachType teachType;
+        private String icon = StringUtils.EMPTY;
         private String url;
+        private long categoryId;
+        private long gradeId;
         private MaterialStatus status;
 
         private Builder() {
@@ -60,6 +67,11 @@ public class MaterialVO {
             return this;
         }
 
+        public Builder withTeachType(TeachType teachType) {
+            this.teachType = teachType;
+            return this;
+        }
+
         public Builder withIcon(String icon) {
             this.icon = icon;
             return this;
@@ -75,6 +87,16 @@ public class MaterialVO {
             return this;
         }
 
+        public Builder withGradeId(long gradeId) {
+            this.gradeId = gradeId;
+            return this;
+        }
+
+        public Builder withCategoryId(long categoryId) {
+            this.categoryId = categoryId;
+            return this;
+        }
+
         public Builder withMaterial(Material material) {
             this.id = material.getId();
             this.authorId = material.getAuthorId();
@@ -82,6 +104,7 @@ public class MaterialVO {
             this.name = material.getName();
             this.description = material.getDescription();
             this.fileType = material.getFileType();
+            this.teachType = material.getTeachType();
             this.icon = material.getIcon();
             this.url = material.getUrl();
             this.status = material.getStatus();
@@ -96,8 +119,11 @@ public class MaterialVO {
             materialVO.setName(name);
             materialVO.setDescription(description);
             materialVO.setFileType(fileType);
+            materialVO.setTeachType(teachType);
             materialVO.setIcon(icon);
             materialVO.setUrl(url);
+            materialVO.setCategoryId(categoryId);
+            materialVO.setGradeId(gradeId);
             materialVO.setStatus(status);
             return materialVO;
         }
@@ -109,8 +135,13 @@ public class MaterialVO {
     private String name;
     private String description;
     private FileType fileType;
+    private TeachType teachType;
+    @JsonProperty("avatar")
     private String icon;
+    @JsonProperty("material")
     private String url;
+    private long categoryId;
+    private long gradeId;
     private MaterialStatus status;
 
     public Material buildMaterial() {
@@ -118,9 +149,10 @@ public class MaterialVO {
         material.setId(id);
         material.setAuthorId(authorId);
         material.setUploaderId(uploaderId);
-        material.setIcon(icon);
+        material.setIcon(icon == null ? StringUtils.EMPTY : icon);
         material.setUrl(url);
         material.setFileType(fileType);
+        material.setTeachType(teachType);
         material.setName(name);
         material.setDescription(description);
         material.setStatus(status);
@@ -199,29 +231,28 @@ public class MaterialVO {
         this.status = status;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof MaterialVO)) {
-            return false;
-        }
-        MaterialVO that = (MaterialVO) o;
-        return id == that.id
-                && authorId == that.authorId
-                && uploaderId == that.uploaderId
-                && Objects.equal(name, that.name)
-                && Objects.equal(description, that.description)
-                && fileType == that.fileType
-                && Objects.equal(icon, that.icon)
-                && Objects.equal(url, that.url)
-                && status == that.status;
+    public TeachType getTeachType() {
+        return teachType;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, authorId, uploaderId, name, description, fileType, icon, url, status);
+    public void setTeachType(TeachType teachType) {
+        this.teachType = teachType;
+    }
+
+    public long getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(long categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public long getGradeId() {
+        return gradeId;
+    }
+
+    public void setGradeId(long gradeId) {
+        this.gradeId = gradeId;
     }
 
     @Override
@@ -239,14 +270,48 @@ public class MaterialVO {
         builder.append(description);
         builder.append(", fileType=");
         builder.append(fileType);
+        builder.append(", teachType=");
+        builder.append(teachType);
         builder.append(", icon=");
         builder.append(icon);
         builder.append(", url=");
         builder.append(url);
+        builder.append(", categoryId=");
+        builder.append(categoryId);
+        builder.append(", gradeId=");
+        builder.append(gradeId);
         builder.append(", status=");
         builder.append(status);
         builder.append('}');
         return builder.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof MaterialVO)) {
+            return false;
+        }
+        MaterialVO that = (MaterialVO) o;
+        return id == that.id
+                && authorId == that.authorId
+                && uploaderId == that.uploaderId
+                && categoryId == that.categoryId
+                && gradeId == that.gradeId
+                && Objects.equal(name, that.name)
+                && Objects.equal(description, that.description)
+                && fileType == that.fileType
+                && teachType == that.teachType
+                && Objects.equal(icon, that.icon)
+                && Objects.equal(url, that.url)
+                && status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id, authorId, uploaderId, name, description, fileType, teachType,
+                icon, url, categoryId, gradeId, status);
+    }
 }

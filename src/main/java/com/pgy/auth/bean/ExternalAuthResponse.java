@@ -1,5 +1,3 @@
-
-
 package com.pgy.auth.bean;
 
 import org.apache.http.HttpStatus;

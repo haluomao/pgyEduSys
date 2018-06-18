@@ -2,7 +2,6 @@ package com.pgy.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.base.Objects;
-import com.pgy.controller.bean.RestResultResponse;
 
 /**
  * The rest response.

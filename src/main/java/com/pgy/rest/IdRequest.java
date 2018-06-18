@@ -1,4 +1,4 @@
-package com.pgy.controller.bean;
+package com.pgy.rest;
 
 import com.google.common.base.Objects;
 

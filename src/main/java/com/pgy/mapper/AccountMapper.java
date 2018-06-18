@@ -25,6 +25,8 @@ public interface AccountMapper {
 
     int update(Account account);
 
+    int updateStatus(@Param("ids") List<Long> ids, @Param("status") int status);
+
     void delete(List<Long> ids);
 
     Account detail(@Param("id") long id);
@@ -34,4 +36,6 @@ public interface AccountMapper {
     int checkAccount(@Param("name") String name, @Param("pwd") String password);
 
     int countAccount(@Param("parentId") long parentId, @Param("role") int role);
+
+    int getAccountCount(@Param("id") long id, @Param("name") String name);
 }

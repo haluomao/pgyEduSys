@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   `phone` varchar(255) NOT NULL DEFAULT '' COMMENT '联系电话',
   `permission` varchar(1024) NOT NULL DEFAULT '' COMMENT '权限',
   `parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '父账户ID',
-  `account_status` int(11) NOT NULL COMMENT '账户状态',
+  `account_status` int(11) NOT NULL DEFAULT 0 COMMENT '账户状态',
   `begin_time` timestamp NOT NULL DEFAULT '1980-01-01 00:00:00' COMMENT '生效开始',
   `end_time` timestamp NOT NULL DEFAULT '1980-01-01 00:00:00' COMMENT '生效结束',
   `create_time` timestamp NOT NULL DEFAULT '1980-01-01 00:00:00',
@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   UNIQUE KEY `account_name` (`account_name`),
   KEY `update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO `pgy`.`accounts`(`id`, `account_name`, `account_pass`, `username`, `role`, `account_status`, `begin_time`, `end_time`, `create_time`, `update_time`)
+VALUES (1, 'admin', '1dd5f07e87dfcb40e18ca7f145f621fe', 'super_admin', 1, 0, now(), '2020-12-30 00:00:00', now(), now());
 
 -- Create syntax for TABLE 'account_config'
 DROP TABLE IF EXISTS `account_config`;
@@ -58,12 +61,6 @@ CREATE TABLE `categories` (
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO
-    categories(id, `name`, `description`, `price`, user_id, `status`, create_time, update_time)
-VALUES
-    (1, '数学','数学', 0, 1, 0, now(), now()),
-    (2, '语文','语文', 0, 1, 0, now(), now());
-
 -- Create syntax for TABLE 'materials'
 DROP TABLE IF EXISTS `materials`;
 CREATE TABLE `materials` (
@@ -71,6 +68,7 @@ CREATE TABLE `materials` (
   `name` VARCHAR(255) NOT NULL COMMENT '材料名称',
   `description` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料描述',
   `file_type` int(11) NOT NULL DEFAULT 0 COMMENT '材料类型: 0-txt,1-ppt',
+  `teach_type` tinyint(3) NOT NULL COMMENT '材料所属课件',
   `url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料下载链接',
   `icon` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料缩略图链接',
   `author_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '材料作者',
@@ -81,6 +79,24 @@ CREATE TABLE `materials` (
   `update_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY(`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Create syntax for TABLE 'upload_log'
+DROP TABLE IF EXISTS `upload_log`;
+CREATE TABLE `upload_log` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+  `uploader_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '材料上传者',
+  `filename` VARCHAR(255) NOT NULL COMMENT '材料名称',
+  `file_type` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '材料类型',
+  `signature` VARCHAR(255) NOT NULL COMMENT '材料签名',
+  `path` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料存储位置',
+  `url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料下载链接',
+  `size` INT(11) NOT NULL DEFAULT 0 COMMENT '材料byte大小',
+  `status` TINYINT(3) NOT NULL COMMENT '状态',
+  `create_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00',
+  `update_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY(`signature`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- Create syntax for TABLE 'category'
@@ -118,3 +134,9 @@ CREATE TABLE `grade_material` (
   `update_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+INSERT INTO
+    categories(id, `name`, `description`, `price`, user_id, `status`, create_time, update_time)
+VALUES
+    (1, '数学','数学', 0, 1, 0, now(), now()),
+    (2, '语文','语文', 0, 1, 0, now(), now());

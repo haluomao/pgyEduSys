@@ -1,13 +1,20 @@
 package com.pgy.controller.material;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.base.Function;
@@ -16,8 +23,6 @@ import com.google.common.collect.Lists;
 import com.pgy.auth.bean.CustomUser;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.material.bean.MaterialCriteria;
 import com.pgy.controller.material.bean.MaterialPagedRequest;
 import com.pgy.controller.material.bean.MaterialVO;
@@ -25,10 +30,13 @@ import com.pgy.material.MaterialManager;
 import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.Material;
 import com.pgy.material.bean.MaterialStatus;
+import com.pgy.material.bean.PublicLevel;
+import com.pgy.rest.IdRequest;
 import com.pgy.rest.PageHelper;
 import com.pgy.rest.RestPage;
 import com.pgy.rest.RestPageResponse;
 import com.pgy.rest.RestResponseFactory;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The impl of {@link MaterialController}.
@@ -59,6 +67,7 @@ public class MaterialControllerImpl implements MaterialController {
                 .withAuthorId(request.getAuthorId())
                 .withGradeId(request.getGradeId())
                 .withCategoryId(request.getCategoryId())
+                .withTeachType(request.getTeachType())
                 .build());
         return RestResponseFactory.newPagedResponse(new RestPage.Builder<MaterialVO>()
                 .withBasePagedRequest(request)
@@ -100,24 +109,37 @@ public class MaterialControllerImpl implements MaterialController {
         log.info(new LogMessageBuilder("get the detail of a category")
                 .withParameter("request", idRequest)
                 .build());
-        Preconditions.checkArgument(idRequest.getId() > 0);
-        Material material = materialManager.detail(idRequest.getId());
 
+        long materialId = idRequest.getId();
+        Preconditions.checkArgument(materialId > 0);
+        Material material = materialManager.detail(materialId);
+        long gradeId = materialManager.getGradeId(materialId);
+        long categoryId = materialManager.getCategoryId(materialId);
         return RestResponseFactory.newSuccessfulResponse(
                 MaterialVO.Builder.aMaterialVO()
                         .withMaterial(material)
+                        .withGradeId(gradeId)
+                        .withCategoryId(categoryId)
                         .build());
     }
 
     @Override
     public RestResultResponse<Void> create(@AuthenticationPrincipal CustomUser loginUser,
             @RequestBody MaterialVO request) throws Exception {
-        log.info(new LogMessageBuilder("create category")
+        log.info(new LogMessageBuilder("create material.")
                 .withParameter("request", request)
                 .build());
+        Preconditions.checkNotNull(loginUser);
+        Preconditions.checkArgument(request.getCategoryId() > 0);
+        Preconditions.checkArgument(request.getCategoryId() > 0);
+
         request.setStatus(MaterialStatus.ENABLED);
         request.setFileType(FileType.UNKNOWN);
-        materialManager.create(request.buildMaterial());
+        Material material = request.buildMaterial();
+        material.setUploaderId(loginUser.getAccountId());
+        material.setId(0L);
+        material.setPublicLevel(PublicLevel.PUBLIC);
+        materialManager.updateWithRelations(material, request.getGradeId(), request.getCategoryId());
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }
 
@@ -129,7 +151,12 @@ public class MaterialControllerImpl implements MaterialController {
                 .build());
 
         Preconditions.checkArgument(request.getId() > 0);
-        materialManager.update(request.buildMaterial());
+        Preconditions.checkArgument(request.getGradeId() > 0);
+        Preconditions.checkArgument(request.getCategoryId() > 0);
+
+        Material material = request.buildMaterial();
+        material.setPublicLevel(PublicLevel.PUBLIC);
+        materialManager.updateWithRelations(material, request.getGradeId(), request.getCategoryId());
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }
 
@@ -143,5 +170,45 @@ public class MaterialControllerImpl implements MaterialController {
         Preconditions.checkArgument(idRequest.getId() > 0);
         materialManager.delete(Lists.newArrayList(idRequest.getId()));
         return RestResponseFactory.newSuccessfulEmptyResponse();
+    }
+
+    @Override
+    public ResponseEntity<byte[]> download(@AuthenticationPrincipal CustomUser loginUser,
+            @RequestParam(value = "id", required = true) Long materialId) throws Exception {
+        log.info(new LogMessageBuilder("download material.")
+                .withParameter("request", materialId)
+                .build());
+
+        Preconditions.checkArgument(materialId > 0);
+        Preconditions.checkArgument(loginUser.getUserId() > 0);
+        // check auth.
+
+        Material material = materialManager.detail(materialId);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(HttpHeaders.CONTENT_TYPE, "text");
+
+        return new ResponseEntity(getFileInBytes(material), headers, HttpStatus.OK);
+    }
+
+    private byte[] getFileInBytes(Material material) {
+        File file = new File(material.getUrl());
+        FileInputStream input = null;
+        try {
+            input = new FileInputStream(file);
+            byte[] buf = new byte[input.available()];
+            input.read(buf);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

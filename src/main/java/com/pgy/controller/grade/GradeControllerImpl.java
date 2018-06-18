@@ -15,16 +15,16 @@ import com.google.common.collect.Lists;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
 import com.pgy.common.bean.Status;
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.grade.bean.GradePagedRequest;
 import com.pgy.controller.grade.bean.GradeVO;
 import com.pgy.grade.GradeManager;
 import com.pgy.grade.bean.Grade;
+import com.pgy.rest.IdRequest;
 import com.pgy.rest.PageHelper;
 import com.pgy.rest.RestPage;
 import com.pgy.rest.RestPageResponse;
 import com.pgy.rest.RestResponseFactory;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The impl of {@link GradeController}.

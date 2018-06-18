@@ -27,6 +27,8 @@ public interface AccountManager {
 
     void update(Account account);
 
+    void updateStatus(List<Long> ids, int status);
+
     List<Account> getAccounts(List<Long> ids);
 
     List<Account> getAccountsByQuery(AccountRequest request);
@@ -44,4 +46,6 @@ public interface AccountManager {
     void updateAccountConfig(AccountConfig accountConfig);
 
     void updateAccountStorage(AccountConfig accountConfig);
+
+    boolean isNameDuplicate(long id, String name);
 }

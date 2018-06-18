@@ -1,5 +1,7 @@
 package com.pgy.controller.grade.bean;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.base.Objects;
 import com.pgy.common.bean.Status;
 import com.pgy.grade.bean.Grade;
@@ -71,7 +73,7 @@ public class GradeVO {
     public Grade buildGrade() {
         Grade grade = new Grade();
         grade.setGradeName(name);
-        grade.setDescription(description);
+        grade.setDescription(description != null ? description : StringUtils.EMPTY);
         grade.setStatus(status);
         grade.setId(id);
         return grade;

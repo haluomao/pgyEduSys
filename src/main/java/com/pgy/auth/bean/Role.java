@@ -6,7 +6,7 @@ package com.pgy.auth.bean;
  * @author Felix
  */
 public enum Role {
-    SUPER_ADMIN(1),
+    SUPERADMIN(1),
     ADMIN(2),
     TEACHER(3),
     USER(4),
@@ -32,6 +32,6 @@ public enum Role {
     }
 
     public boolean isAdmin() {
-        return this == SUPER_ADMIN || this == ADMIN;
+        return this == SUPERADMIN || this == ADMIN;
     }
 }

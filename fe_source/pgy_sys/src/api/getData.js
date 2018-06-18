@@ -1,16 +1,16 @@
 // Use mock, (goto main.js first) remove the // below two lines. Then restart.
-import {_fetch} from '@/config/api'
-let fetch = _fetch
+// import {_fetch} from '@/config/api'
+// let fetch = _fetch
 
-//import fetch from '@/config/fetch'
+import fetch from '@/config/fetch'
 
 //export const login = data => fetch('/admin/login', data, 'POST');
 
-export const login = data => fetch('/api/v1/login', data);
-export const logout = data => fetch('/api/v1/logout', data);
+export const login = data => fetch('/api/pgy/v1/auth/login', data, 'POST', 'login');
+export const logout = data => fetch('/api/pgy/v1/auth/logout', data);
+export const checkLogin = data => fetch('/api/v1/auth/logined', data);
 
 export const upload = data => fetch('/api/v1/upload', data);
-
 
 export const allCategories = data => fetch('/api/v1/category/all', data);
 export const listCategories = data => fetch('/api/v1/category/list', data);
@@ -38,3 +38,5 @@ export const createAccount = data => fetch('/api/v1/account/create', data);
 export const updateAccount = data => fetch('/api/v1/account/update', data);
 export const updateAccountPwd = data => fetch('/api/v1/account/updatePwd', data);
 export const deleteAccount = data => fetch('/api/v1/account/delete', data);
+export const enableAccount = data => fetch('/api/v1/account/enable', data);
+export const disableAccount = data => fetch('/api/v1/account/disable', data);

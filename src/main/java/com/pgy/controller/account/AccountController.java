@@ -6,8 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.pgy.auth.bean.CustomUser;
 import com.pgy.controller.account.bean.AccountVO;
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
+import com.pgy.rest.IdListRequest;
+import com.pgy.rest.IdRequest;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The account controller.
@@ -37,5 +38,13 @@ public interface AccountController {
     @RequestMapping("/delete")
     //@PreAuthorize("hasRole('ROLE_ADMIN')")
     RestResultResponse<Void> delete(CustomUser customUser, IdRequest request) throws Exception;
+
+    @RequestMapping("/enable")
+        //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    RestResultResponse<Void> enable(CustomUser customUser, IdListRequest request) throws Exception;
+
+    @RequestMapping("/disable")
+        //@PreAuthorize("hasRole('ROLE_ADMIN')")
+    RestResultResponse<Void> disable(CustomUser customUser, IdListRequest request) throws Exception;
 
 }

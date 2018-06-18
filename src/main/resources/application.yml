@@ -14,14 +14,9 @@ auth:
   accounts:
     -
       username: admin
-      password: admin
+      password: 21232f297a57a5a743894a0e4a801fc3
       role: ADMIN
-    -
-      username: guest
-      password: 4a35fe6704a0252d488af9e059c07b76
-      #21232f297a57a5a743894a0e4a801fc3
-      role: USER
-  authType: INMEM
+  authType: INTERNAL
   loginPageUrl: /pgy/login.html
   loginApi: /api/pgy/v1/auth/login
   loginSuccessUrl: /pgy/#/homepage
@@ -30,9 +25,10 @@ auth:
   authPatterns:
     - /api/pgy/**
     - /api/common/**
+    #- /files/**
   ignorePatterns:
     - /pgy/**
-    - /asset/**
+    - /assets/**
     - /dep/**
 jdbc:
   dbReadBatchSize: 5000
@@ -43,10 +39,19 @@ jdbc:
 upload:
   type: LOCAL
   local:
-    dir: ./upload
-    prefix: http://localhost/
+    dir: ./Downloads/pgy
+    prefix: http://localhost:9066/files/
+    resPatterns: /files/**
+    location: file:./Downloads/pgy/
   bos:
     ak: ak
     sk: sk
     bucket: bucket
     uploadDir:
+material:
+  coursewareIcon: ./1.png
+  classicIcon: ./1.png
+  exerciseIcon: ./1.png
+schedule:
+  userCheckEnable: false
+  userCheckCron: "0 0 0 * * *"

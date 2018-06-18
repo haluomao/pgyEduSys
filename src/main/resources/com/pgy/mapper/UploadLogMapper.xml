@@ -1,0 +1,132 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pgy.mapper.UploadLogMapper">
+
+    <select id="getUploadLogs" parameterType="map"
+            resultType="com.pgy.uploadlog.bean.UploadLog">
+        SELECT
+            id,
+            uploader_id AS uploaderId,
+            filename,
+            file_type AS fileType,
+            signature,
+            path,
+            url,
+            size,
+            status
+        FROM
+            upload_log
+        WHERE
+            status != -1
+            <if test="ids != null and ids.size() > 0">
+                AND id IN
+                <foreach item="item" collection="ids" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+    </select>
+
+    <select id="detail" parameterType="map"
+            resultType="com.pgy.uploadlog.bean.UploadLog">
+        SELECT
+            id,
+            uploader_id AS uploaderId,
+            filename,
+            file_type AS fileType,
+            signature,
+            path,
+            url,
+            size,
+            status
+        FROM
+            upload_log
+        WHERE
+            status != -1 AND id=#{id}
+    </select>
+
+    <select id="getBySignature" parameterType="map"
+            resultType="com.pgy.uploadlog.bean.UploadLog">
+        SELECT
+            id,
+            uploader_id AS uploaderId,
+            filename,
+            file_type AS fileType,
+            signature,
+            path,
+            url,
+            size,
+            status
+        FROM
+            upload_log
+        WHERE
+            status != -1 AND signature = #{signature}
+    </select>
+
+    <insert id="create" parameterType="com.pgy.uploadlog.bean.UploadLog" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" order="AFTER" resultType="long">
+            SELECT LAST_INSERT_ID() as id;
+        </selectKey>
+        INSERT INTO upload_log
+            (filename,
+             uploader_id,
+             file_type,
+             signature,
+             path,
+             url,
+             size,
+             status,
+             create_time,
+             update_time)
+        VALUES
+            (#{filename},
+             #{uploaderId},
+             #{fileType},
+             #{signature},
+             #{path},
+             #{url},
+             #{size},
+             #{status},
+             now(),
+             now())
+        ON DUPLICATE KEY UPDATE
+            filename = #{filename},
+            uploader_id = #{uploaderId},
+            file_type = #{fileType},
+            signature = #{signature},
+            path = #{path},
+            url = #{url},
+            size = #{size},
+            status = #{status}
+    </insert>
+
+    <update id="update" parameterType="com.pgy.uploadlog.bean.UploadLog">
+        UPDATE
+            upload_log
+        SET
+            filename = #{filename},
+            uploader_id = #{uploaderId},
+            file_type = #{fileType},
+            signature = #{signature},
+            path = #{path},
+            url = #{url},
+            size = #{size},
+            status = #{status}
+        WHERE
+            id = #{id}
+    </update>
+
+    <update id="delete" parameterType="list">
+        UPDATE
+            upload_log
+        SET
+            status = -1
+        WHERE
+            id IN
+            <foreach item="item" collection="list" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+    </update>
+</mapper>

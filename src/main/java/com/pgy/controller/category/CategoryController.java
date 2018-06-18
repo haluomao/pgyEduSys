@@ -4,11 +4,11 @@ import java.util.List;
 
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.pgy.controller.bean.IdRequest;
-import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.category.bean.CategoryPagedRequest;
 import com.pgy.controller.category.bean.CategoryVO;
+import com.pgy.rest.IdRequest;
 import com.pgy.rest.RestPageResponse;
+import com.pgy.rest.RestResultResponse;
 
 /**
  * The category controller.

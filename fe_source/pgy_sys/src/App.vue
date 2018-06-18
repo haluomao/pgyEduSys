@@ -6,16 +6,25 @@
           <div id='header' />
           <el-row>
               <el-col :span="4" class="el-menu-demo headerLogo">
-                <span class="title">蒲公英教育康复<br />综合支持系统</span>
+                <span class="title"><a href="#/home" class="noStyleLink">蒲公英教育康复<br />综合支持系统</a></span>
               </el-col>
               <el-col :span="18">
-                <el-menu default-active="1" class="el-menu-demo headerStyle" mode="horizontal" @select="" text-color="#000" active-text-color="#ffd04b">
-                  <el-menu-item index="1" @click="open('/coursewareList?type=1')">互动课件</el-menu-item>
-                  <el-menu-item index="2" @click="open('/coursewareList?type=2')">经典教案</el-menu-item>
-                  <el-menu-item index="3" @click="open('/coursewareList?type=3')">习题</el-menu-item>
-                  <el-menu-item index="4" @click="open('/coursewareList?type=4')">我的共享</el-menu-item>
-                  <el-menu-item index="5" @click="open('/accountList')">账户管理</el-menu-item>
-                  <el-menu-item index="6" @click="open('/gradeList')">年级管理</el-menu-item>
+                <el-menu id='el-menu-id' :default-active='$route.path' class="el-menu-demo headerStyle" mode="horizontal" @select="" text-color="#555" active-text-color="#ffd04b" router>
+                  <el-menu-item index="/coursewareList1" @click="open('/coursewareList1')">互动课件</el-menu-item>
+                  <el-menu-item index="/coursewareList2" @click="open('/coursewareList2')">经典教案</el-menu-item>
+                  <el-menu-item index="/coursewareList3" @click="open('/coursewareList3')">习题</el-menu-item>
+                  <template v-if="false">
+                    <el-menu-item index="/coursewareList4" @click="open('/coursewareList4')">我的共享</el-menu-item>
+                  </template>
+                  <template v-if="isTeacher || isAdmin">
+                    <el-menu-item index="/accountList" @click="open('/accountList')">账户管理</el-menu-item>
+                  </template>
+                  <template v-if="isSuperAdmin">
+                    <el-menu-item index="/gradeList" @click="open('/gradeList')">年级管理</el-menu-item>
+                  </template>
+                  <template>
+                    <el-menu-item index="/contact" @click="open('/contact')">联系我们</el-menu-item>
+                  </template>
                 </el-menu>
               </el-col>
               <el-col :span="2" class="headerLogo">
@@ -24,7 +33,6 @@
                     <span class="el-dropdown-link">{{userInfo.username}}</span>
                   </div>
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item>个人中心</el-dropdown-item>
                     <el-dropdown-item><div @click="handleLogout()">退出</div></el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
@@ -33,17 +41,17 @@
         </el-header>
 
       <el-container height="100%">
-          <el-aside width="16.67%">
-            <gradeSide v-if='grade'></gradeSide>
+          <el-aside class="headerASide" width="16.67%">
+            <gradeSide v-if='showGrade'></gradeSide>
             <manageSide v-else></manageSide>
           </el-aside>
         <el-container>
             <el-main>
               <keep-alive>
-                 <router-view></router-view>
+                 <router-view v-if='isRouterAlive'></router-view>
             </keep-alive>
             </el-main>
-            <el-footer>CopyRight@Felix</el-footer>
+            <el-footer >CopyRight@2018 Primitives</el-footer>
         </el-container>
       </el-container>
     </el-container>
@@ -65,9 +73,18 @@ export default {
     name: 'App',
     data() {
       return {
-        grade: true,
+        showGrade: true,
         logined: false,
-        userInfo: ''
+        isAdmin: false,
+        isSuperAdmin: false,
+        isTeacher: false,
+        userInfo: '',
+        isRouterAlive: true
+      }
+    },
+    provide() {
+      return {
+        reloadAllPages: this.reloadAllPages
       }
     },
     components: {
@@ -76,20 +93,39 @@ export default {
       login
     },
     mounted(){
-      if (getCookie('userInfo')) {
-        let userInfo = JSON.parse(getCookie('userInfo'))
-        this.logined = true;
-        this.userInfo = userInfo;
-      }
+      var self = this;
+      this.$root.Bus.$on('logout', function(val) {
+          self.handleLogout();
+      });
+      this.updateLoginInfo();
     },
     methods: {
+      reloadAllPages() {
+        console.log("reloadAllPages");
+        this.showGrade = false; 
+        this.isRouterAlive = false;
+        this.$nextTick(function(){
+          this.showGrade = true;
+          this.isRouterAlive = true;
+        })
+      },
+      updateLoginInfo() {
+        if (getCookie('userInfo')) {
+          let userInfo = JSON.parse(getCookie('userInfo'))
+          this.logined = true;
+          this.userInfo = userInfo;
+          this.isAdmin = userInfo.role === 'SUPERADMIN' || userInfo.role === 'ADMIN';
+          this.isSuperAdmin = userInfo.role === 'SUPERADMIN';
+          this.isTeacher = userInfo.role === 'TEACHER';
+        }
+      },
       open(url) {
         this.$router.push(url);
+        //this.$root.Bus.$emit('refresh', '');
       },
       userSignIn(userInfo) {
-        this.logined = true;
-        this.userInfo = userInfo;
         setCookie('userInfo',JSON.stringify(userInfo), 1000*60);
+        this.updateLoginInfo();
       },
       async handleLogout() {
         try {
@@ -120,10 +156,33 @@ export default {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    height: 100%;
   }
 
-  body {
+  .el-button--primary, .newBtnStyle {
+      background: #ff982a !important;
+      border-color: #ff982a !important;
+  }
+
+  .el-button--primary:hover {
+      background: #ffd04b !important;
+      border-color: #ffd04b !important;
+  }
+
+  .el-button--primary:focus {
+      background: #ffd04b !important;
+      border-color: #ffd04b !important;
+  }
+
+  html body {
     margin: 0;
+    /*height: 100%;
+    padding: 0;
+    
+    background-image: url('assets/bg.png');
+    background-position:center;
+    background-repeat:no-repeat;
+    background-size: 100% 100%;*/
   }
 
   .el-textarea__inner {
@@ -131,7 +190,7 @@ export default {
   }
 
   .headerLogo {
-    background-color: #3C8DC4;
+    background-color: #15b699;
     text-align: center;
     height: 60px;
   }
@@ -143,13 +202,23 @@ export default {
     color: #fff;
   }
 
-  .headerStyle {
-    background-color: #3C8DC4;
+  .headerASide {
+    height: 600px;
+    border-right: 1px solid #dddddd;
+  }
+
+  .headerStyle, .el-menu, #el-menu-id {
+    background-color: #15b699;
   }
 
   .userInfo {
     color: #fff;
     padding-top: 20px;
+  }
+
+  .noStyleLink {
+    text-decoration:none;
+    color:#333;  
   }
 
   .el-footer {

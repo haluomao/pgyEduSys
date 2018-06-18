@@ -1,8 +1,8 @@
 <template>
     <div class="fillcontain">
         <div>
-            <el-button type="primary" round @click="handleAdd()">添加用户</el-button>
-            <el-button type="success" icon="el-icon-refresh" circle @click="reload()"></el-button>
+            <el-button type="primary" class="newBtnStyle" round @click="handleAdd()">添加用户</el-button>
+            <el-button type="primary" class="newBtnStyle" icon="el-icon-refresh" circle @click="reload()"></el-button>
         </div>
         <div class="table_container">
             <el-table :data="tableData" style="width: 100%">
@@ -11,14 +11,19 @@
                 <el-table-column label="登录名" prop="accountName"></el-table-column>
                 <el-table-column label="姓名" prop="username"></el-table-column>
                 <el-table-column label="角色" prop="role"></el-table-column>
+                <el-table-column label="状态" prop="status"></el-table-column>
                 <el-table-column label="有效时间" prop="validTimeCN" width="240px"></el-table-column>
 
-                <el-table-column label="操作" width="240px">
+                <el-table-column label="操作" width="320px">
                   <template slot-scope="scope">
                     <el-button size="mini"
                       @click="handleUpdate(scope.$index, scope.row)">编辑</el-button>
-					<el-button size="mini"
+					<el-button size="mini" type="primary" class="newBtnStyle"
                       @click="handleUpdatePwd(scope.$index, scope.row)">重置密码</el-button>
+                    <el-button size="mini" type="success" v-if="scope.row.showEnable"
+                      @click="handleStatus(scope.$index, scope.row, true)">启用</el-button>
+                    <el-button size="mini" type="warning" v-if="scope.row.showDisable"
+                      @click="handleStatus(scope.$index, scope.row, false)">禁用</el-button>
                     <el-button size="mini" type="danger"
                       @click="handleDelete(scope.$index, scope.row)">删除</el-button>
                   </template>
@@ -103,10 +108,11 @@
 
 <script>
     import timeUtil from '../util/timeUtil'
-    import {RoleEnum} from '@/config/enum' 
+    import {RoleEnum, AccountStatusEnum} from '@/config/enum' 
     import md5 from 'js-md5'
     import _ from 'lodash'
-    import {listAccounts, createAccount, updateAccount, updateAccountPwd, detailAccount, deleteAccount} from '@/api/getData'
+    import {listAccounts, createAccount, updateAccount, updateAccountPwd, detailAccount, deleteAccount, enableAccount, disableAccount} from '@/api/getData'
+    import { getCookie } from '@/assets/cookie.js'
 
     const defaultValue = {
         validTime: ''
@@ -115,8 +121,7 @@
         data(){
             return {
                 tableData: [],
-                formData: {
-                },
+                formData: {},
                 selectTable: defaultValue,
                 opType: '',
                 dialogFormVisible: false,
@@ -150,6 +155,9 @@
                     username: [
                         { required: true, message: '请输入姓名', trigger: 'blur' }
                     ],
+                    role: [
+                        { required: true, message: '请选择角色', trigger: 'blur' }
+                    ],
                     phone: [
                         { required: true, message: '请输入手机', trigger: 'blur' }
                     ],
@@ -167,9 +175,9 @@
             }
         },
         created() {
+            this.checkLogin();
             this.initData();
         },
-        props:['role'],
     	components: {
     	},
         methods: {
@@ -183,9 +191,15 @@
                 }
             },
             loadRoles() {
-                this.validRoles = [RoleEnum.prop[RoleEnum.TEACHER]];
-                if (this.role) {
-                    this.validRoles = [RoleEnum.prop[this.role]];
+                if (getCookie('userInfo')) {
+                    let userInfo = JSON.parse(getCookie('userInfo'));
+                    var arr = RoleEnum.prop[userInfo.role].children;
+                    this.validRoles = [];
+                    for(var i=0; i<arr.length; i++){  
+                        this.validRoles.push(RoleEnum.prop[arr[0]]);
+                    } 
+                } else {
+                    this.checkLogin();
                 }
             },
         	timeFormatter: function(row, col, cellValue) {
@@ -198,6 +212,7 @@
                 try{
                 	this.getAccounts();
                 } catch(err) {
+                    this.checkLogin();
                     console.log('获取数据失败', err);
                 }
             },
@@ -212,12 +227,20 @@
                         row.accountName = item.accountName;
                         row.username = item.username;
                         row.role = RoleEnum.prop[item.role].text;
-                        row.status = item.status;
+                        row.status = AccountStatusEnum.prop[item.status].text;
+                        if (item.status === 'ENABLED') {
+                            row.showDisable = true;
+                        }
+                        if (item.status === 'DISABLED') {
+                            row.showEnable = true;
+                        }
                         row.beginTime = item.beginTime;
                         row.endTime = item.endTime;
                         row.validTimeCN = timeUtil.toDateCN(item.beginTime) + "-" + timeUtil.toDateCN(item.endTime);
                         this.tableData.push(row);
                     })
+                } else {
+                    this.checkLogin();
                 }
             },
             handleAdd() {
@@ -226,14 +249,6 @@
                 this.selectTable.validTime = new Array(new Date(), timeUtil.oneYearAfter(new Date()));
                 this.selectTable.id = 0; 
                 this.loadRoles();                
-            },
-            handleUpdate(index, row) {
-                this.dialogFormVisible = true;
-                this.opType = '编辑账户';
-                _.assign(this.selectTable, row);
-                this.selectTable.validTime = _.clone([this.selectTable.beginTime, this.selectTable.endTime]);
-                delete this.selectTable.accountPassword;
-                delete this.selectTable.passwordConfirm;
             },
             handleUpdatePwd(index, row) {
                 this.dialogFormVisiblePwd = true;
@@ -248,6 +263,63 @@
                   })
                   .catch(_ => {});
             },
+            async handleUpdate(index, row) {
+                try {
+                    var res = await detailAccount({id: row.id});
+                    if (res.success === true) {
+                        _.assign(this.selectTable, res.result);
+                        this.selectTable.role = RoleEnum.prop[this.selectTable.role].text;
+                        this.selectTable.validTime = _.clone([this.selectTable.beginTime, this.selectTable.endTime]);
+                        delete this.selectTable.accountPassword;
+                        delete this.selectTable.passwordConfirm;
+                        this.opType = '编辑账户';
+                        this.dialogFormVisible = true;
+                    } else {
+                        throw new Error(res.message);
+                    }
+                } catch (err) {
+                    this.$message({
+                        type: 'error',
+                        message: err.message
+                    });
+                    console.log('详情获取失败');
+                    this.checkLogin();
+                }
+            },
+            async handleStatus(index, row, bool) {
+                var prompt = '确认' + (bool ? '启用' : '禁用') + row.accountName + '？';
+                var confirm;
+                try {
+                    confirm = await this.$confirm(prompt);
+                } catch (err) {
+                    return;
+                }
+                
+                try {
+                    var res;
+                    if (bool === true) {
+                        res = await enableAccount({idList: [row.id]});
+                    } else {
+                        res = await disableAccount({idList: [row.id]});
+                    }
+                    if (res.success === true) {
+                        this.$message({
+                            type: 'success',
+                            message: '操作成功'
+                        });
+                        this.reload();
+                    } else {
+                        throw new Error(res.message);
+                    }
+                } catch (err) {
+                    this.$message({
+                        type: 'error',
+                        message: err.message
+                    });
+                    console.log('状态更新失败');
+                    this.checkLogin();
+                }
+            },
             async handleDelete_inner(index, row) {
                 try{
                     const res = await deleteAccount({id: row.id});
@@ -257,7 +329,7 @@
                             message: '删除成功'
                         });
                         this.tableData.splice(index, 1);
-                    }else{
+                    } else {
                         throw new Error(res.message)
                     }
                 } catch(err) {
@@ -266,6 +338,7 @@
                         message: err.message
                     });
                     console.log('删除失败');
+                    this.checkLogin();
                 }
             },
             validForm(formName) {
@@ -295,6 +368,7 @@
                     formData.beginTime = this.selectTable.validTime[0];
                     formData.endTime = this.selectTable.validTime[1];
                     this.selectTable = defaultValue;
+                    delete formData.status;
 
                     var res;
                     if (this.selectTable.id > 0) {
@@ -309,6 +383,9 @@
                             type: 'success',
                             message: '操作成功'
                         });
+                        for(var name in this.selectTable) {
+                            delete this.selectTable[name];
+                        }
                         this.reload();
                     } else {
                         this.$message({
@@ -318,6 +395,7 @@
                     }
                 } catch(err) {
                     console.log('操作失败', err);
+                    this.checkLogin();
                 }
             },
             async submitPwd(formName) {
@@ -343,6 +421,7 @@
                     }
                 }catch(err){
                     console.log('操作失败', err);
+                    this.checkLogin();
                 }
             },
         },

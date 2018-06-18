@@ -6,18 +6,28 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.common.base.Preconditions;
+import com.pgy.auth.bean.CustomUser;
 import com.pgy.common.LogMessageBuilder;
+import com.pgy.common.ZipHelper;
 import com.pgy.config.UploadConfig;
-import com.pgy.controller.bean.RestResultResponse;
 import com.pgy.controller.common.bean.UploadResult;
+import com.pgy.material.bean.FileType;
+import com.pgy.material.bean.MaterialStatus;
 import com.pgy.rest.RestResponseFactory;
+import com.pgy.rest.RestResultResponse;
+import com.pgy.uploadlog.UploadLogManager;
+import com.pgy.uploadlog.bean.UploadLog;
 import com.pgy.util.bce.bos.BosFactory;
 import com.pgy.util.bce.bos.BosUtil;
 import com.pgy.util.bce.bos.bean.BosFileDescriptor;
@@ -33,25 +43,58 @@ public class UploadControllerImpl implements UploadController {
 
     private final BosUtil bosUtil;
     private final UploadConfig uploadConfig;
+    private final UploadLogManager uploadLogManager;
 
     @Autowired
-    public UploadControllerImpl(BosFactory bosFactory, UploadConfig uploadConfig) {
+    public UploadControllerImpl(BosFactory bosFactory, UploadConfig uploadConfig,
+            UploadLogManager uploadLogManager) {
         this.bosUtil = bosFactory.getBosUtil();
         this.uploadConfig = uploadConfig;
+        this.uploadLogManager = uploadLogManager;
     }
 
     @Override
-    public RestResultResponse<UploadResult> upload(@RequestPart MultipartFile file) throws Exception {
+    public RestResultResponse<UploadResult> upload(@AuthenticationPrincipal CustomUser loginUser,
+            @RequestPart MultipartFile file) throws Exception {
         log.info(new LogMessageBuilder("upload.")
-                .withParameter("fileName", file)
+                .withParameter("file", file)
+                .withParameter("fileName", file.getOriginalFilename())
                 .build());
-        UploadResult result = uploadFile(file.getOriginalFilename(),
-                file.getContentType(), file.getBytes());
+
+        Preconditions.checkNotNull(loginUser);
+        // Check if file already exists, return the url if true.
+        byte[] bytes = file.getBytes();
+        String contentType = file.getContentType();
+        String signature = calcSignature(bytes);
+        UploadResult result;
+        UploadLog oldUploadLog = uploadLogManager.detail(signature);
+        if (oldUploadLog != null && StringUtils.isNotBlank(oldUploadLog.getUrl())) {
+            result = UploadResult.Builder.anUploadResult()
+                    .withUrl(oldUploadLog.getUrl())
+                    .withMimeType(contentType)
+                    .build();
+            return RestResponseFactory.newSuccessfulResponse(result);
+        }
+        result = uploadFile(file.getOriginalFilename(), contentType, file.getBytes(), signature);
+
+        uploadLogManager.create(UploadLog.Builder.anUploadLog()
+                .withUploaderId(loginUser.getAccountId())
+                .withFilename(file.getOriginalFilename())
+                .withFileType(contentType)
+                .withPath(result.getPath())
+                .withUrl(result.getUrl())
+                .withSignature(signature)
+                .withSize(bytes.length)
+                .withStatus(MaterialStatus.ENABLED)
+                .build());
         return RestResponseFactory.newSuccessfulResponse(result);
     }
 
-    private UploadResult uploadFile(String filename, String contentType, byte[] fileContent) {
+    private UploadResult uploadFile(String filename, String contentType, byte[] fileContent, String signature)
+            throws Exception {
+
         if (bosUtil != null && uploadConfig.getType() == UploadConfig.UploadType.BOS) {
+            // TODO upload to bos, which is not supported now.
             BosFileDescriptor fileDescriptor = bosUtil.uploadWithDistinctName(filename,
                     new ByteArrayInputStream(fileContent), fileContent.length, contentType);
             URL url = bosUtil.populateUrl(fileDescriptor).getUrl();
@@ -60,16 +103,19 @@ public class UploadControllerImpl implements UploadController {
                     .withMimeType(contentType)
                     .build();
         } else {
-            String path = uploadConfig.getLocal().dir;
-            File filePath = new File(path, filename);
+            String relativePath = signature + File.separator + filename;
+            String absolutePath = uploadConfig.getLocal().getDir() + File.separator + signature;
+            File filePath = new File(absolutePath, filename);
             if (!filePath.getParentFile().exists()) {
                 filePath.getParentFile().mkdirs();
             }
-            path = path + File.separator + filename;
+
+            absolutePath = absolutePath + File.separator + filename;
             FileOutputStream outputStream = null;
             try {
-                outputStream = new FileOutputStream(path);
+                outputStream = new FileOutputStream(absolutePath);
                 outputStream.write(fileContent);
+                log.info("uploaded:" + absolutePath);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
@@ -79,10 +125,23 @@ public class UploadControllerImpl implements UploadController {
                     e.printStackTrace();
                 }
             }
+
+            if (FileType.parseStr(contentType) == FileType.ZIP) {
+                String newPath = absolutePath + "_content";
+                ZipHelper.unzipToFile(absolutePath, newPath);
+                relativePath = relativePath + "_content/index.html";
+            }
+
             return UploadResult.Builder.anUploadResult()
-                    .withUrl(uploadConfig.getLocal().prefix + path)
+                    .withPath(relativePath)
+                    .withUrl(uploadConfig.getLocal().getPrefix() + relativePath)
                     .withMimeType(contentType)
                     .build();
         }
     }
+
+    private String calcSignature(byte[] data) {
+        return DigestUtils.md2Hex(data);
+    }
+
 }

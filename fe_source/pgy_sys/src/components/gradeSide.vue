@@ -5,24 +5,28 @@
 			<el-select class='grade-select' v-model="gradeSelect" placeholder="请选择" @change="gradeChanged">
 			    <el-option
 			      v-for="item in grades"
-			      :key="item.value"
+			      :key="item.id"
 			      :label="item.name"
-			      :value="item.value">
+			      :value="item.id">
 			    </el-option>
 			</el-select>
 		</el-row>
-		<el-row>
-			<div class='icon-span'>
-				<i class="el-icon-edit"></i>
-				<span class="icon-name"><a href='/#/coursewareList?type=1&cat=1'>数学互动小课堂</a></span>
-			</div>
-		</el-row>
-		<el-row>
-			<div class='icon-span'>
-				<i class="el-icon-service"></i>
-				<span class="icon-name"><a href='/#/coursewareList?type=1&cat=2'>语文互动小课堂</a></span>
-			</div>
-		</el-row>
+		<template>
+			<el-checkbox-group v-model="checkList" @change="gradeChanged">
+				<el-row>
+					<div class='icon-span'>
+						<i class="el-icon-edit"></i>
+					    <el-checkbox label="数学互动小课堂" border></el-checkbox>
+					</div>
+				</el-row>
+				<el-row>
+					<div class='icon-span'>
+						<i class="el-icon-service"></i>
+					    <el-checkbox label="语文互动小课堂" border></el-checkbox>
+					</div>
+				</el-row>
+			</el-checkbox-group>
+		</template>
 	</div>
 </template>
 
@@ -33,7 +37,8 @@
 		data() {
 			return {
 				gradeSelect: '',
-				grades: []
+				grades: [{id:0, name:'全部'}],
+				checkList: []
 			}
 		},
 		mounted() {
@@ -45,6 +50,7 @@
 		          const res = await allGrades();
 		          if (res.success === true) {
 		            this.grades = res.result;
+		            this.grades.splice(0, 0, {id:0, name:'全部'});
 		          } else {
 		            console.log("获取年级失败");
 		          }
@@ -52,8 +58,12 @@
 		        	console.log(e);
 		        }
 		    },
-			gradeChanged(){
-				this.$root.Bus.$emit('send', this.gradeSelect);
+			gradeChanged() {
+				var data = {gradeId: this.gradeSelect, categoryId: 0};
+				if (this.checkList.length === 1) {
+					data.categoryId = this.checkList[0].indexOf('数学') >= 0 ? 1:2;
+				}
+				this.$root.Bus.$emit('queryCoursewareList', data);
 			}
 		}
 

@@ -323,4 +323,43 @@ public class AccountVO {
     public void setParentCount(long parentCount) {
         this.parentCount = parentCount;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder("AccountVO{");
+        builder.append("id=");
+        builder.append(id);
+        builder.append(", accountName=");
+        builder.append(accountName);
+        builder.append(", accountPassword=");
+        builder.append(accountPassword);
+        builder.append(", username=");
+        builder.append(username);
+        builder.append(", role=");
+        builder.append(role);
+        builder.append(", balance=");
+        builder.append(balance);
+        builder.append(", email=");
+        builder.append(email);
+        builder.append(", phone=");
+        builder.append(phone);
+        builder.append(", permission=");
+        builder.append(permission);
+        builder.append(", parentId=");
+        builder.append(parentId);
+        builder.append(", status=");
+        builder.append(status);
+        builder.append(", beginTime=");
+        builder.append(beginTime);
+        builder.append(", endTime=");
+        builder.append(endTime);
+        builder.append(", config=");
+        builder.append(config);
+        builder.append(", teacherCount=");
+        builder.append(teacherCount);
+        builder.append(", parentCount=");
+        builder.append(parentCount);
+        builder.append('}');
+        return builder.toString();
+    }
 }

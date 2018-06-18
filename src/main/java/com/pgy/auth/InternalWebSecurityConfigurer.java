@@ -22,7 +22,10 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.baidubce.util.JsonUtils;
+import com.pgy.auth.bean.CustomUser;
 import com.pgy.common.CollectionHelper;
+import com.pgy.rest.RestResponseFactory;
 
 /**
  * Web security configurer for internal authentication.
@@ -67,7 +70,8 @@ public class InternalWebSecurityConfigurer extends WebSecurityConfigurer {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                     Authentication authentication) throws IOException, ServletException {
-                authAjaxResponse(response, SUCCESS_AJAX_RESPONSE);
+                authAjaxResponse(response, JsonUtils.toJsonString(
+                        RestResponseFactory.newSuccessfulResponse(getUserInfo(authentication.getName()))));
             }
         };
     }
@@ -115,5 +119,14 @@ public class InternalWebSecurityConfigurer extends WebSecurityConfigurer {
             }
         }
         authAjaxRedirectResponse(response, loginPageUrl);
+    }
+
+    private AuthConfig.Auth getUserInfo(String username) {
+        CustomUser user = (CustomUser) userDetailsService.loadUserByUsername(username);
+        AuthConfig.Auth auth = new AuthConfig.Auth();
+        auth.setId(user.getUserId());
+        auth.setRole(user.getRole().name());
+        auth.setUsername(username);
+        return auth;
     }
 }

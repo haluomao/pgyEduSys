@@ -20,7 +20,9 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
+import com.baidubce.util.JsonUtils;
 import com.pgy.common.CollectionHelper;
+import com.pgy.rest.RestResponseFactory;
 
 /**
  * Web security configurer for in-mem authentication.
@@ -62,7 +64,8 @@ public class InmemWebSecurityConfigurer extends WebSecurityConfigurer {
             @Override
             public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                     Authentication authentication) throws IOException, ServletException {
-                authAjaxResponse(response, SUCCESS_AJAX_RESPONSE);
+                authAjaxResponse(response, JsonUtils.toJsonString(
+                        RestResponseFactory.newSuccessfulResponse(getUserInfo(authentication.getName()))));
             }
         };
     }
@@ -73,6 +76,7 @@ public class InmemWebSecurityConfigurer extends WebSecurityConfigurer {
             @Override
             public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response,
                     AuthenticationException exception) throws IOException, ServletException {
+                exception.printStackTrace();
                 authenticatedFailed(request, response, exception);
             }
         };
@@ -110,5 +114,14 @@ public class InmemWebSecurityConfigurer extends WebSecurityConfigurer {
             }
         }
         authAjaxRedirectResponse(response, loginPageUrl);
+    }
+
+    private AuthConfig.Auth getUserInfo(String username) {
+        for (AuthConfig.Auth auth : getAuthConfig().getAccounts()) {
+            if (auth.getUsername().equals(username)) {
+                return auth;
+            }
+        }
+        return null;
     }
 }

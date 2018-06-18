@@ -6,11 +6,22 @@ import router from './router'
 import EleUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
+import {checkLogin} from '@/api/getData'
+import {delCookie} from '@/assets/cookie'
+
 Vue.use(EleUI)
 Vue.config.productionTip = false
 
+Vue.prototype.checkLogin = function (){
+  checkLogin({}).then(res => {
+  	if (res.success !== true) {
+      console.log('delete cookie.');
+      this.$root.Bus.$emit('logout', {});
+  	}
+  });
+}
 // use mock data, remove the // below. then go config/env.js.
-require('./mock.js')
+// require('./mock.js')
 
 /* eslint-disable no-new */
 new Vue({

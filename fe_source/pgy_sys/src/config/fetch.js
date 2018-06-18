@@ -16,7 +16,7 @@ export default async(url = '', data = {}, type = 'POST', method = 'fetch') => {
 		}
 	}
 
-	if (window.fetch && method == 'fetch') {
+	if (window.fetch && (method === 'fetch' || method === 'login')) {
 		let requestConfig = {
 			credentials: 'include',
 			method: type,
@@ -28,12 +28,24 @@ export default async(url = '', data = {}, type = 'POST', method = 'fetch') => {
 			cache: "force-cache"
 		}
 
-		if (type == 'POST') {
-			Object.defineProperty(requestConfig, 'body', {
-				value: JSON.stringify(data)
-			})
+		let dataStr = JSON.stringify(data);
+		if (method === 'login') {
+			requestConfig.headers = {
+				'Accept': 'application/json',
+				'Content-Type': 'application/x-www-form-urlencoded'
+			};
+			dataStr = '';
+			for (var key in data) {
+		    	if (data[key]) {
+			    	dataStr = dataStr + '&' + key + '=' + data[key];
+			    }
+			}			
+		} 
+
+		if (type === 'POST') {
+			Object.defineProperty(requestConfig, 'body', { value: dataStr });
 		}
-		
+
 		try {
 			const response = await fetch(url, requestConfig);
 			const responseJson = await response.json();
