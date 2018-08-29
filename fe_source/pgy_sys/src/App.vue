@@ -13,7 +13,7 @@
                   <el-menu-item index="/coursewareList1" @click="open('/coursewareList1')">互动课件</el-menu-item>
                   <el-menu-item index="/coursewareList2" @click="open('/coursewareList2')">经典教案</el-menu-item>
                   <el-menu-item index="/coursewareList3" @click="open('/coursewareList3')">习题</el-menu-item>
-                  <template v-if="false">
+                  <template v-if="isTeacher">
                     <el-menu-item index="/coursewareList4" @click="open('/coursewareList4')">我的共享</el-menu-item>
                   </template>
                   <template v-if="isTeacher || isAdmin">
@@ -41,9 +41,8 @@
         </el-header>
 
       <el-container height="100%">
-          <el-aside class="headerASide" width="16.67%">
-            <gradeSide v-if='showGrade'></gradeSide>
-            <manageSide v-else></manageSide>
+          <el-aside class="headerASide" width="16.67%" v-if='showGrade'>
+            <gradeSide></gradeSide>
           </el-aside>
         <el-container>
             <el-main>
@@ -58,6 +57,7 @@
   </template>
   <template v-else>
       <login @userSignIn="userSignIn"/>
+      <homepage :show-grade="showGrade" />
   </template>
   </div>
 </template>
@@ -65,6 +65,7 @@
 <script>
 import gradeSide from '@/components/gradeSide'
 import manageSide from '@/components/manageSide'
+import homepage from '@/page/homepage'
 import login from '@/page/login'
 import {logout} from '@/api/getData'
 import {getCookie, setCookie, delCookie} from '@/assets/cookie'
@@ -90,7 +91,8 @@ export default {
     components: {
       gradeSide,
       manageSide,
-      login
+      login,
+      homepage
     },
     mounted(){
       var self = this;
@@ -145,7 +147,7 @@ export default {
 
         delCookie('userInfo');
         this.logined = false;
-        this.$router.push('/home');
+        this.$router.push('/homepage');
       }
     }
 }
@@ -172,6 +174,17 @@ export default {
   .el-button--primary:focus {
       background: #ffd04b !important;
       border-color: #ffd04b !important;
+  }
+
+  .el-radio-button__orig-radio:hover+.el-radio-button__inner {
+      color: #FFF !important;
+      background: #ffd04b !important;
+      border-color: #ffd04b !important;
+  }
+  .el-radio-button__orig-radio:checked+.el-radio-button__inner {
+      background: #ff982a !important;
+      border-color: #ff982a !important;
+      -webkit-box-shadow: -1px 0 0 0 !important;
   }
 
   html body {

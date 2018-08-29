@@ -35,4 +35,13 @@ var AccountStatusEnum = {
 	}
 }
 
-export { RoleEnum, MaterialTypeEnum, AccountStatusEnum }
+var PublicLevelEnum = {
+	PRIVATE: "PRIVATE",
+	ONLINE_PUBLIC: "ONLINE_PUBLIC",
+	prop: {
+		"PRIVATE": {code: "PRIVATE", value: 1, text: "我的共享"},
+		"ONLINE_PUBLIC": {code: "ONLINE_PUBLIC", value: 2, text: "网上资源"}
+	}
+}
+
+export { RoleEnum, MaterialTypeEnum, AccountStatusEnum, PublicLevelEnum }

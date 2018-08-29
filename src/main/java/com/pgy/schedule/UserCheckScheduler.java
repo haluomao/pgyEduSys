@@ -43,6 +43,7 @@ public class UserCheckScheduler extends BaseScheduler {
             ScheduleConfig scheduleConfig, AccountManager accountManager) {
         super(THREAD_POOL_NAME, executorServiceFactory);
         this.scheduleConfig = scheduleConfig;
+        disableScheduler = !scheduleConfig.isUserCheckEnable();
         this.accountManager = accountManager;
     }
 

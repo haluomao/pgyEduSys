@@ -92,7 +92,7 @@ public class AccountMapperTest extends BizDbTestCase {
 
     @Test
     public void countAccount() {
-        assertEquals(1, accountMapper.countAccount(0, Role.ADMIN.getValue()));
+        assertEquals(1, accountMapper.countAccount(Lists.newArrayList(0L), Role.ADMIN.getValue()));
     }
 
     private AccountRequest buildAccountRequest() {

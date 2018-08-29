@@ -35,7 +35,7 @@ public interface AccountManager {
 
     boolean login(Account account);
 
-    int getAccountCount(long parentId, int role);
+    int getAccountCount(List<Long> parentIds, int role);
 
     boolean isExpired(Account account);
 
@@ -43,7 +43,7 @@ public interface AccountManager {
 
     Map<Long, AccountConfig> getAccountConfigs(List<Long> accountIds);
 
-    void updateAccountConfig(AccountConfig accountConfig);
+    void createAccountConfig(AccountConfig accountConfig);
 
     void updateAccountStorage(AccountConfig accountConfig);
 

@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is copied from dbunit, and modified to support setting encoding.
  *
- * @author unkown
+ * @author Felix
  */
 @SuppressWarnings({ "rawtypes", "unchecked" })
 public class CsvParserImpl implements CsvParser {

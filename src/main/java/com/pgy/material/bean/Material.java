@@ -14,6 +14,7 @@ public class Material {
     private FileType fileType;
     private TeachType teachType;
     private String url;
+    private String downloadUrl;
     private String icon;
     private long authorId;
     private long uploaderId;
@@ -108,6 +109,14 @@ public class Material {
         this.teachType = teachType;
     }
 
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder("Material{");
@@ -123,6 +132,8 @@ public class Material {
         builder.append(teachType);
         builder.append(", url=");
         builder.append(url);
+        builder.append(", downloadUrl=");
+        builder.append(downloadUrl);
         builder.append(", icon=");
         builder.append(icon);
         builder.append(", authorId=");
@@ -154,6 +165,7 @@ public class Material {
                 && fileType == material.fileType
                 && teachType == material.teachType
                 && Objects.equal(url, material.url)
+                && Objects.equal(downloadUrl, material.downloadUrl)
                 && Objects.equal(icon, material.icon)
                 && status == material.status
                 && publicLevel == material.publicLevel;
@@ -161,7 +173,6 @@ public class Material {
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(id, name, description, fileType, teachType, url, icon, authorId,
-                uploaderId, status, publicLevel);
+        return Objects.hashCode(id, name, description, fileType, teachType, url, downloadUrl, icon, authorId, uploaderId, status, publicLevel);
     }
 }

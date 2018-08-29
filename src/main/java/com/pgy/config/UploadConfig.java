@@ -18,6 +18,7 @@ public class UploadConfig {
         private String prefix;
         private String resPatterns;
         private String location;
+        private String trashDir;
 
         public String getDir() {
             return dir;
@@ -49,6 +50,14 @@ public class UploadConfig {
 
         public void setLocation(String location) {
             this.location = location;
+        }
+
+        public String getTrashDir() {
+            return trashDir;
+        }
+
+        public void setTrashDir(String trashDir) {
+            this.trashDir = trashDir;
         }
     }
 

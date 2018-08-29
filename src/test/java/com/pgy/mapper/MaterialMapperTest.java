@@ -83,6 +83,7 @@ public class MaterialMapperTest extends BizDbTestCase {
         material.setFileType(FileType.TXT);
         material.setTeachType(TeachType.COURSEWARE);
         material.setUrl("url1");
+        material.setDownloadUrl("dUrl1");
         material.setIcon("icon1");
         material.setAuthorId(1);
         material.setUploaderId(1);
@@ -99,6 +100,7 @@ public class MaterialMapperTest extends BizDbTestCase {
         material.setFileType(FileType.TXT);
         material.setTeachType(TeachType.CLASSIC);
         material.setUrl("url2");
+        material.setDownloadUrl("dUrl2");
         material.setIcon("icon2");
         material.setAuthorId(1);
         material.setUploaderId(1);

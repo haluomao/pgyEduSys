@@ -35,7 +35,7 @@ public interface AccountMapper {
 
     int checkAccount(@Param("name") String name, @Param("pwd") String password);
 
-    int countAccount(@Param("parentId") long parentId, @Param("role") int role);
+    int countAccount(@Param("parentIds") List<Long> parentIds, @Param("role") int role);
 
     int getAccountCount(@Param("id") long id, @Param("name") String name);
 }

@@ -73,6 +73,7 @@ public class UploadLogMapperTest extends BizDbTestCase {
         uploadLog.setUrl("url1");
         uploadLog.setSignature("sign1");
         uploadLog.setPath("url1");
+        uploadLog.setDownloadUrl("dUrl1");
         uploadLog.setUploaderId(1);
         uploadLog.setSize(100);
         uploadLog.setStatus(MaterialStatus.ENABLED);
@@ -87,6 +88,7 @@ public class UploadLogMapperTest extends BizDbTestCase {
         uploadLog.setUrl("url2");
         uploadLog.setSignature("sign2");
         uploadLog.setPath("url2");
+        uploadLog.setDownloadUrl("dUrl2");
         uploadLog.setUploaderId(2);
         uploadLog.setSize(100);
         uploadLog.setStatus(MaterialStatus.ENABLED);

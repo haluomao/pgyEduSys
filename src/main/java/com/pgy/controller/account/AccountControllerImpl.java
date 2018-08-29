@@ -3,6 +3,7 @@ package com.pgy.controller.account;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import com.pgy.auth.bean.Role;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
 import com.pgy.controller.account.bean.AccountVO;
+import com.pgy.mybatis.PgyTransactionHelper;
 import com.pgy.rest.IdListRequest;
 import com.pgy.rest.IdRequest;
 import com.pgy.rest.RestResponseFactory;
@@ -36,12 +38,17 @@ import com.pgy.rest.RestResultResponse;
 @RestController
 public class AccountControllerImpl implements AccountController {
     private static final Log log = LogFactory.getLog(AccountControllerImpl.class);
+    private static final String USER_CREATE_LIMIT = "子账户数已达上限";
+    private static final String USER_CONFIG_LIMIT = "家长账户配额已超出";
+    private static final String STORAGE_EXCEED_LIMIT = "容量已超过额度";
 
     private final AccountManager accountManager;
+    private final PgyTransactionHelper transactionHelper;
 
     @Autowired
-    public AccountControllerImpl(AccountManager accountManager) {
+    public AccountControllerImpl(AccountManager accountManager, PgyTransactionHelper transactionHelper) {
         this.accountManager = accountManager;
+        this.transactionHelper = transactionHelper;
     }
 
     @Override
@@ -91,16 +98,32 @@ public class AccountControllerImpl implements AccountController {
         Account account = accountManager.detail(accountId);
         AccountVO.Builder builder = AccountVO.Builder.anAccountVO().withAccount(account);
         if (account.getRole() == Role.ADMIN) {
-            builder.withConfig(accountManager.getAccountConfig(accountId))
-                    .withTeacherCount((long) accountManager.getAccountCount(accountId, Role.TEACHER.getValue()))
-                    .withParentCount((long) accountManager.getAccountCount(accountId, Role.USER.getValue()));
+            List<Account> teachers = accountManager.getAccountsByQuery(AccountRequest.Builder.anAccountRequest()
+                    .withParentId(accountId)
+                    .build());
+            builder.withAccountConfig(accountManager.getAccountConfig(accountId))
+                    .withTeacherCount(accountManager.getAccountCount(Lists.newArrayList(accountId),
+                            Role.TEACHER.getValue()))
+                    .withParentCount(accountManager.getAccountCount(CollectionHelper.transform(teachers,
+                            new Function<Account, Long>() {
+                                @Override
+                                public Long apply(Account input) {
+                                    return input.getId();
+                                }
+                            }),
+                            Role.USER.getValue()));
+        } else if (account.getRole() == Role.TEACHER) {
+            builder.withAccountConfig(accountManager.getAccountConfig(accountId))
+                    .withTeacherCount(0)
+                    .withParentCount(accountManager.getAccountCount(Lists.newArrayList(accountId),
+                            Role.USER.getValue()));
         }
         return RestResponseFactory.newSuccessfulResponse(builder.build());
     }
 
     @Override
     public RestResultResponse<Long> create(@AuthenticationPrincipal CustomUser customUser,
-            @RequestBody AccountVO accountVO) throws Exception {
+            @RequestBody final AccountVO accountVO) throws Exception {
         log.info(new LogMessageBuilder()
                 .withMessage("create account")
                 .withParameter("request", accountVO)
@@ -109,13 +132,37 @@ public class AccountControllerImpl implements AccountController {
         if (accountManager.isNameDuplicate(accountVO.getId(), accountVO.getAccountName())) {
             return RestResponseFactory.newFailedResponse("用户名重复");
         }
-        // TODO
-//        checkLimit(customUser.getAccountId(), accountVO.getRole());
+
+        final AccountConfig accountConfig = accountManager.getAccountConfig(customUser.getAccountId());
+        Preconditions.checkNotNull(accountConfig);
+
+        String message = checkAccountLimit(accountConfig, accountVO.getRole(), accountVO.getParentLimit());
+        if (StringUtils.isNotBlank(message)) {
+            return RestResponseFactory.newFailedResponse(message);
+        }
+        message = checkStorageLimit(accountConfig, accountVO.getRole(), accountVO.getStorageLimit());
+        if (StringUtils.isNotBlank(message)) {
+            return RestResponseFactory.newFailedResponse(message);
+        }
+
         accountVO.setParentId(customUser.getAccountId());
         accountVO.setStatus(AccountStatus.ENABLED);
-        Account account = accountVO.buildAccount();
+        final Account account = accountVO.buildAccount();
 
-        accountManager.create(account);
+        transactionHelper.runInTransaction(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        accountManager.create(account);
+                        accountManager.createAccountConfig(accountVO.buildAccountConfig(account.getId()));
+                        if (accountVO.getStorageLimit() > 0) {
+                            accountConfig.setStorageUsed(accountConfig.getStorageUsed() + accountVO.getStorageLimit());
+                            accountManager.updateAccountStorage(accountConfig);
+                        }
+                    }
+                }
+        );
+
         return RestResponseFactory.newSuccessfulResponse(account.getId());
     }
 
@@ -150,8 +197,51 @@ public class AccountControllerImpl implements AccountController {
                 .withMessage("delete account")
                 .withParameter("request", request)
                 .build());
-        //checkParentId(customUser.getAccountId(), request.getId());
-        accountManager.delete(Lists.newArrayList(request.getId()));
+
+        checkParentId(customUser.getAccountId(), request.getId());
+
+        // delete cascaded accounts.
+        List<Long> toDeleteIds = Lists.newArrayList(request.getId());
+        if (customUser.getRole() == Role.SUPERADMIN) {
+            List<Account> teachers = accountManager.getAccountsByQuery(AccountRequest.Builder.anAccountRequest()
+                    .withParentId(request.getId())
+                    .build());
+            for (Account account : teachers) {
+                toDeleteIds.add(account.getId());
+                toDeleteIds.addAll(CollectionHelper.transform(
+                        accountManager.getAccountsByQuery(AccountRequest.Builder.anAccountRequest()
+                                .withParentId(request.getId())
+                                .build()),
+                        new Function<Account, Long>() {
+                            @Override
+                            public Long apply(Account input) {
+                                return input.getId();
+                            }
+                        }));
+            }
+        } else if (customUser.getRole() == Role.ADMIN) {
+            toDeleteIds.addAll(CollectionHelper.transform(
+                    accountManager.getAccountsByQuery(AccountRequest.Builder.anAccountRequest()
+                            .withParentId(request.getId())
+                            .build()),
+                    new Function<Account, Long>() {
+                        @Override
+                        public Long apply(Account input) {
+                            return input.getId();
+                        }
+                    }));
+
+            // recycle the storage.
+            final AccountConfig childAccountConfig = accountManager.getAccountConfig(request.getId());
+            Preconditions.checkNotNull(childAccountConfig);
+            if (childAccountConfig.getStorageLimit() > 0) {
+                final AccountConfig accountConfig = accountManager.getAccountConfig(customUser.getAccountId());
+                accountConfig.setStorageUsed(accountConfig.getStorageUsed() - childAccountConfig.getStorageLimit());
+                accountManager.updateAccountStorage(accountConfig);
+            }
+        }
+
+        accountManager.delete(toDeleteIds);
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }
 
@@ -182,14 +272,44 @@ public class AccountControllerImpl implements AccountController {
         Preconditions.checkArgument(parentId == account.getParentId());
     }
 
-    private void checkLimit(long parentId, Role newAccountRole) {
-        AccountConfig accountConfig = accountManager.getAccountConfig(parentId);
-        if (newAccountRole == Role.TEACHER) {
-            int teacherCount = accountManager.getAccountCount(parentId, newAccountRole.getValue());
-            Preconditions.checkArgument(teacherCount < accountConfig.getTeacherLimit());
-        } else if (newAccountRole == Role.USER) {
-            int teacherCount = accountManager.getAccountCount(parentId, newAccountRole.getValue());
-            Preconditions.checkArgument(teacherCount < accountConfig.getParentLimit());
+    private String checkAccountLimit(AccountConfig accountConfig, Role newAccountRole, int parentLimit) {
+        if (newAccountRole == Role.TEACHER && accountConfig.getTeacherLimit() >= 0) {
+            // check teacher limit.
+            int teacherCount = accountManager.getAccountCount(Lists.newArrayList(accountConfig.getAccountId()),
+                    newAccountRole.getValue());
+            if (teacherCount >= accountConfig.getTeacherLimit()) {
+                return USER_CREATE_LIMIT;
+            }
+
+            // check user limit.
+            List<Account> teachers = accountManager.getAccountsByQuery(AccountRequest.Builder.anAccountRequest()
+                    .withParentId(accountConfig.getAccountId())
+                    .build());
+            int parentCount = accountManager.getAccountCount(CollectionHelper.transform(teachers,
+                    new Function<Account, Long>() {
+                        @Override
+                        public Long apply(Account input) {
+                            return input.getId();
+                        }
+                    }),
+                    Role.USER.getValue());
+            if (parentCount + parentLimit > accountConfig.getParentLimit()) {
+                return USER_CONFIG_LIMIT;
+            }
+        } else if (newAccountRole == Role.USER && accountConfig.getParentLimit() >= 0) {
+            int userCount = accountManager.getAccountCount(Lists.newArrayList(accountConfig.getAccountId()),
+                    newAccountRole.getValue());
+            return userCount < accountConfig.getParentLimit() ? StringUtils.EMPTY : USER_CREATE_LIMIT;
         }
+        return StringUtils.EMPTY;
+    }
+
+    private String checkStorageLimit(AccountConfig accountConfig, Role newAccountRole, int storageLimit) {
+        if (newAccountRole == Role.TEACHER && storageLimit > 0) {
+            if (accountConfig.getStorageUsed() + storageLimit > accountConfig.getStorageLimit()) {
+                return STORAGE_EXCEED_LIMIT;
+            }
+        }
+        return StringUtils.EMPTY;
     }
 }

@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * <p/>
  * This class is copied from dbunit, and modified to support setting encoding.
  *
- * @author unkown
+ * @author Felix
  */
 @SuppressWarnings("rawtypes")
 public class CsvURLProducer implements IDataSetProducer {

@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.pgy.account.AccountManager;
+import com.pgy.account.bean.AccountConfig;
 import com.pgy.auth.bean.CustomUser;
 import com.pgy.common.CollectionHelper;
 import com.pgy.common.LogMessageBuilder;
@@ -48,10 +50,12 @@ public class MaterialControllerImpl implements MaterialController {
     private static final Log log = LogFactory.getLog(MaterialControllerImpl.class);
 
     private final MaterialManager materialManager;
+    private final AccountManager accountManager;
 
     @Autowired
-    public MaterialControllerImpl(MaterialManager materialManager) {
+    public MaterialControllerImpl(MaterialManager materialManager, AccountManager accountManager) {
         this.materialManager = materialManager;
+        this.accountManager = accountManager;
     }
 
     @Override
@@ -64,7 +68,7 @@ public class MaterialControllerImpl implements MaterialController {
         List<Material> categories = materialManager.query(MaterialCriteria.Builder.aMaterialCriteria()
                 .withName(request.getName())
                 .withPublicLevel(request.getPublicLevel())
-                .withAuthorId(request.getAuthorId())
+                .withAuthorId(request.getPublicLevel() == PublicLevel.ONLINE_PUBLIC ? null : request.getAuthorId())
                 .withGradeId(request.getGradeId())
                 .withCategoryId(request.getCategoryId())
                 .withTeachType(request.getTeachType())
@@ -133,13 +137,27 @@ public class MaterialControllerImpl implements MaterialController {
         Preconditions.checkArgument(request.getCategoryId() > 0);
         Preconditions.checkArgument(request.getCategoryId() > 0);
 
+        AccountConfig accountConfig = null;
+        if (request.getTotalSize() > 0) {
+            accountConfig = accountManager.getAccountConfig(loginUser.getAccountId());
+            Preconditions.checkNotNull(accountConfig);
+            if (checkLimit(accountConfig, request.getTotalSize())) {
+                return RestResponseFactory.newFailedResponse("上传容量已超过配置");
+            }
+        }
+
         request.setStatus(MaterialStatus.ENABLED);
         request.setFileType(FileType.UNKNOWN);
         Material material = request.buildMaterial();
         material.setUploaderId(loginUser.getAccountId());
         material.setId(0L);
-        material.setPublicLevel(PublicLevel.PUBLIC);
+        material.setPublicLevel(request.getPublicLevel() != null ? request.getPublicLevel() : PublicLevel.PUBLIC);
         materialManager.updateWithRelations(material, request.getGradeId(), request.getCategoryId());
+
+        if (request.getTotalSize() > 0 && accountConfig != null) {
+            accountConfig.setStorageUsed(accountConfig.getStorageUsed() + request.getTotalSize());
+            accountManager.updateAccountStorage(accountConfig);
+        }
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }
 
@@ -154,9 +172,23 @@ public class MaterialControllerImpl implements MaterialController {
         Preconditions.checkArgument(request.getGradeId() > 0);
         Preconditions.checkArgument(request.getCategoryId() > 0);
 
+        AccountConfig accountConfig = null;
+        if (request.getTotalSize() > 0) {
+            accountConfig = accountManager.getAccountConfig(loginUser.getAccountId());
+            Preconditions.checkNotNull(accountConfig);
+            if (checkLimit(accountConfig, request.getTotalSize())) {
+                return RestResponseFactory.newFailedResponse("上传容量已达上限");
+            }
+        }
+
         Material material = request.buildMaterial();
         material.setPublicLevel(PublicLevel.PUBLIC);
         materialManager.updateWithRelations(material, request.getGradeId(), request.getCategoryId());
+
+        if (request.getTotalSize() > 0 && accountConfig != null) {
+            accountConfig.setStorageUsed(accountConfig.getStorageUsed() + request.getTotalSize());
+            accountManager.updateAccountStorage(accountConfig);
+        }
         return RestResponseFactory.newSuccessfulEmptyResponse();
     }
 
@@ -189,6 +221,11 @@ public class MaterialControllerImpl implements MaterialController {
         headers.add(HttpHeaders.CONTENT_TYPE, "text");
 
         return new ResponseEntity(getFileInBytes(material), headers, HttpStatus.OK);
+    }
+
+    private boolean checkLimit(AccountConfig accountConfig, int storageSize) {
+        return accountConfig.getStorageLimit() >= 0 &&
+                accountConfig.getStorageLimit() < accountConfig.getStorageUsed() + storageSize;
     }
 
     private byte[] getFileInBytes(Material material) {

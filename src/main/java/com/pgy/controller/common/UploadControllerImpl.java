@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.google.common.base.Preconditions;
 import com.pgy.auth.bean.CustomUser;
+import com.pgy.common.DirUtils;
 import com.pgy.common.LogMessageBuilder;
 import com.pgy.common.ZipHelper;
 import com.pgy.config.UploadConfig;
@@ -71,6 +72,7 @@ public class UploadControllerImpl implements UploadController {
         if (oldUploadLog != null && StringUtils.isNotBlank(oldUploadLog.getUrl())) {
             result = UploadResult.Builder.anUploadResult()
                     .withUrl(oldUploadLog.getUrl())
+                    .withDownloadUrl(oldUploadLog.getDownloadUrl())
                     .withMimeType(contentType)
                     .build();
             return RestResponseFactory.newSuccessfulResponse(result);
@@ -83,8 +85,9 @@ public class UploadControllerImpl implements UploadController {
                 .withFileType(contentType)
                 .withPath(result.getPath())
                 .withUrl(result.getUrl())
+                .withDownloadUrl(result.getDownloadUrl())
                 .withSignature(signature)
-                .withSize(bytes.length)
+                .withSize(result.getStorageUsed())
                 .withStatus(MaterialStatus.ENABLED)
                 .build());
         return RestResponseFactory.newSuccessfulResponse(result);
@@ -104,7 +107,9 @@ public class UploadControllerImpl implements UploadController {
                     .build();
         } else {
             String relativePath = signature + File.separator + filename;
+            String downloadUrl = relativePath;
             String absolutePath = uploadConfig.getLocal().getDir() + File.separator + signature;
+            int storageUsed = fileContent.length;
             File filePath = new File(absolutePath, filename);
             if (!filePath.getParentFile().exists()) {
                 filePath.getParentFile().mkdirs();
@@ -128,14 +133,25 @@ public class UploadControllerImpl implements UploadController {
 
             if (FileType.parseStr(contentType) == FileType.ZIP) {
                 String newPath = absolutePath + "_content";
-                ZipHelper.unzipToFile(absolutePath, newPath);
-                relativePath = relativePath + "_content/index.html";
+                try {
+                    storageUsed += ZipHelper.unzipToFile(absolutePath, newPath);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    throw new Exception("Failed to unzip file.");
+                }
+                String indexFile = DirUtils.findFile(newPath, "index.html", true);
+                if (StringUtils.isEmpty(indexFile)) {
+                    throw new Exception("No index.html file exists in this zip.");
+                }
+                relativePath = relativePath + indexFile.substring(newPath.length());
             }
 
             return UploadResult.Builder.anUploadResult()
                     .withPath(relativePath)
                     .withUrl(uploadConfig.getLocal().getPrefix() + relativePath)
+                    .withDownloadUrl(uploadConfig.getLocal().getPrefix() + downloadUrl)
                     .withMimeType(contentType)
+                    .withStorageUsed(storageUsed)
                     .build();
         }
     }

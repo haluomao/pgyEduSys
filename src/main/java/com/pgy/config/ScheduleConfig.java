@@ -11,8 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "schedule")
 public class ScheduleConfig {
-    private boolean userCheckEnable = false;
+    private boolean userCheckEnable = true;
     private String userCheckCron;
+    private boolean fileCleanEnable = false;
+    private String fileCleanCron;
 
     public String getUserCheckCron() {
         return userCheckCron;
@@ -28,5 +30,21 @@ public class ScheduleConfig {
 
     public void setUserCheckEnable(boolean userCheckEnable) {
         this.userCheckEnable = userCheckEnable;
+    }
+
+    public boolean isFileCleanEnable() {
+        return fileCleanEnable;
+    }
+
+    public void setFileCleanEnable(boolean fileCleanEnable) {
+        this.fileCleanEnable = fileCleanEnable;
+    }
+
+    public String getFileCleanCron() {
+        return fileCleanCron;
+    }
+
+    public void setFileCleanCron(String fileCleanCron) {
+        this.fileCleanCron = fileCleanCron;
     }
 }

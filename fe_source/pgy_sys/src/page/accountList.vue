@@ -60,6 +60,30 @@
                             </el-option>
                         </el-select>
                     </el-form-item>
+                    <el-form-item label="教师账户上限数" label-width="120px" prop="userLimit" 
+                        v-if='selectTable.role === "ADMIN"'>
+                        <el-input-number v-model="selectTable.teacherLimit" :min="0" :max="100" 
+                            :disabled="selectTable.id != 0" />
+                        <template v-if='selectTable.id != 0 && selectTable.role !== "USRE"'>
+                            <div style='display:inline-block;'>已有子账户{{selectTable.teacherCount}}个</div>
+                        </template>
+                    </el-form-item>
+                    <el-form-item label="家长账户上限数" label-width="120px" prop="userLimit" 
+                        v-if='selectTable.role && selectTable.role !== "USER"'>
+                        <el-input-number v-model="selectTable.parentLimit" :min="0" :max="100" 
+                            :disabled="selectTable.id!=0" />
+                        <template v-if='selectTable.id!=0 && selectTable.role !== "USRE"'>
+                            <div style='display:inline-block;'>已有子账户{{selectTable.parentCount}}个</div>
+                        </template>
+                    </el-form-item>
+                    <el-form-item label="容量上限(MB)" label-width="120px" prop="storageLimit" v-if='selectTable.role && selectTable.role !== "USER"'>
+                        <el-input-number v-model="selectTable.storageLimit" :min="0" :max="2048" :step="10"
+                            :disabled="selectTable.id!=0" />
+
+                        <template v-if='selectTable.id!=0 && selectTable.role !== "USRE"'>
+                            <div style='display:inline-block;'>已使用{{selectTable.storageUsed}}MB</div>
+                        </template>
+                    </el-form-item>
                     <el-form-item label="手机" label-width="120px" prop="phone">
                         <el-input v-model="selectTable.phone" placeholder="手机"></el-input>
                     </el-form-item>
@@ -114,15 +138,21 @@
     import {listAccounts, createAccount, updateAccount, updateAccountPwd, detailAccount, deleteAccount, enableAccount, disableAccount} from '@/api/getData'
     import { getCookie } from '@/assets/cookie.js'
 
-    const defaultValue = {
-        validTime: ''
-    };
+    const regExp = /^[0-9a-zA-Z]+$/;
+    const defaultForm = {
+        teacherLimit: 0,
+        parentLimit: 0,
+        storageLimit: 0,
+        validTime: '',
+        role: ''
+    }
+
     export default {
         data(){
             return {
                 tableData: [],
-                formData: {},
-                selectTable: defaultValue,
+                formData: defaultForm,
+                selectTable: defaultForm,
                 opType: '',
                 dialogFormVisible: false,
                 dialogFormVisiblePwd : false,
@@ -150,7 +180,8 @@
                 rules: {
                     accountName: [
                         { required: true, message: '请输入登录名', trigger: 'blur' },
-                        { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
+                        { min: 3, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' },
+                        { validator: this.validateName, trigger: 'blur' }
                     ],
                     username: [
                         { required: true, message: '请输入姓名', trigger: 'blur' }
@@ -181,6 +212,13 @@
     	components: {
     	},
         methods: {
+            validateName: function(rule, value, callback) {
+                if(!regExp.test(value)) {
+                    callback(new Error('只支持数字和字母'));
+                } else {
+                    callback();
+                }
+            },
             validatePass: function(rule, value, callback){            
                 if (value === '') {
                     callback(new Error('请输入密码'));
@@ -209,7 +247,8 @@
                 this.getAccounts();
             },
             async initData(){
-                try{
+                try {
+                    this.loadRoles();   
                 	this.getAccounts();
                 } catch(err) {
                     this.checkLogin();
@@ -247,29 +286,15 @@
                 this.dialogFormVisible = true;
                 this.opType = '添加账户';
                 this.selectTable.validTime = new Array(new Date(), timeUtil.oneYearAfter(new Date()));
-                this.selectTable.id = 0; 
-                this.loadRoles();                
-            },
-            handleUpdatePwd(index, row) {
-                this.dialogFormVisiblePwd = true;
-                this.opType = '重置密码';
-                this.selectTable.id = row.id;
-                this.selectTable.accountName = row.accountName;
-            },
-            handleDelete(index, row) {
-                this.$confirm('确认删除' + row.accountName + '？')
-                  .then(_ => {
-                    this.handleDelete_inner(index, row);
-                  })
-                  .catch(_ => {});
+                this.selectTable.id = 0;              
             },
             async handleUpdate(index, row) {
                 try {
                     var res = await detailAccount({id: row.id});
                     if (res.success === true) {
                         _.assign(this.selectTable, res.result);
-                        this.selectTable.role = RoleEnum.prop[this.selectTable.role].text;
                         this.selectTable.validTime = _.clone([this.selectTable.beginTime, this.selectTable.endTime]);
+                        //this.selectTable.role = RoleEnum.prop[this.selectTable.role].text;
                         delete this.selectTable.accountPassword;
                         delete this.selectTable.passwordConfirm;
                         this.opType = '编辑账户';
@@ -285,6 +310,19 @@
                     console.log('详情获取失败');
                     this.checkLogin();
                 }
+            },
+            handleUpdatePwd(index, row) {
+                this.dialogFormVisiblePwd = true;
+                this.opType = '重置密码';
+                this.selectTable.id = row.id;
+                this.selectTable.accountName = row.accountName;
+            },
+            handleDelete(index, row) {
+                this.$confirm('确认删除' + row.accountName + '？')
+                  .then(_ => {
+                    this.handleDelete_inner(index, row);
+                  })
+                  .catch(_ => {});
             },
             async handleStatus(index, row, bool) {
                 var prompt = '确认' + (bool ? '启用' : '禁用') + row.accountName + '？';
@@ -367,7 +405,7 @@
                     let formData = _.assign(this.selectTable);                    
                     formData.beginTime = this.selectTable.validTime[0];
                     formData.endTime = this.selectTable.validTime[1];
-                    this.selectTable = defaultValue;
+                    this.selectTable = defaultForm;
                     delete formData.status;
 
                     var res;
@@ -375,9 +413,12 @@
                         delete formData.role;
                         res = await updateAccount(formData);
                     } else {
+                        let tmpPwd = this.selectTable.accountPassword;
                         formData.accountPassword = md5(this.selectTable.accountPassword);
                         res = await createAccount(formData);
+                        formData.accountPassword = tmpPwd;
                     }
+
                     if (res.success === true) {
                         this.$message({
                             type: 'success',
@@ -405,7 +446,7 @@
                 try{
                     let formData = _.assign(this.selectTable);
                     formData.accountPassword = md5(this.selectTable.accountPassword);
-                    this.selectTable = defaultValue;
+                    this.selectTable = defaultForm;
 
                     var res = await updateAccountPwd(formData);
                     if (res.success === true) {

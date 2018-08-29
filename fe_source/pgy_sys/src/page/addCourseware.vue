@@ -45,6 +45,16 @@
 		  <el-form-item label="描述：" prop="description">
 		    <el-input type="textarea"	 v-model="form.description"></el-input>
 		  </el-form-item>
+      <template v-if='false'>
+        <el-form-item label="共享类型：" prop="publicLevel">
+          <el-option
+            v-for="item in publicLevels"
+            :key="item.code"
+            :label="item.txt"
+            :value="item.code">
+          </el-option>
+        </el-form-item>
+      </template>
 		  <el-form-item label="缩略图：" prop="avatar">
 		  	<el-upload
           v-model="form.avatar"
@@ -83,13 +93,14 @@
 <script>
 import _ from 'lodash'
 import { baseUploadPath } from '@/config/env'
-import { MaterialTypeEnum } from '@/config/enum' 
+import { MaterialTypeEnum, PublicLevelEnum } from '@/config/enum' 
 import {upload, allGrades, allCategories, updateMaterial, createMaterial, detailMaterial} from '@/api/getData'
 
 const defaultForm = {
   id: 0,
   gradeId: '',
-  categoryId: ''
+  categoryId: '',
+  publicLevel: ''
 };
 export default {
     data() {
@@ -101,6 +112,7 @@ export default {
         isEdit: false,
         form: defaultForm,
         types: [],
+        publicLevels: [],
         rules: {
             teachType: [
                 { required: true, message: '请选择类型', trigger: 'blur' }
@@ -151,6 +163,10 @@ export default {
         } else {
           this.form = defaultForm;
           this.isEdit = false;
+        }
+        this.publicLevels = [];
+        for(var key in PublicLevelEnum.prop){
+          this.publicLevels.push(PublicLevelEnum.prop[key]);
         }
       },
       async detail(cid) {
@@ -211,7 +227,10 @@ export default {
           if (!this.validForm(formName)) return;
 
           try {
-              let formData = _.assign(this.form);   
+              let formData = _.assign(this.form);  
+              if (formData.publicLevel === '') {
+                formData.publicLevel = 'PUBLIC';
+              } 
 
               var res;
               if (this.form.id > 0) {
@@ -237,6 +256,7 @@ export default {
         if (res.success === true) {
             this.imageUrl = res.result.url;
             this.form.avatar = this.imageUrl;
+            this.form.imageSize = res.result.storageUsed;
         } else {
             this.$message({ type: 'error', message: res.message });
         }
@@ -244,6 +264,8 @@ export default {
       handleCoursewareUploadSuccess(res) {
         if (res.success === true) {
             this.form.material = res.result.url;
+            this.form.downloadUrl = res.result.downloadUrl;
+            this.form.materialSize = res.result.storageUsed;
         } else {
             this.$message({ type: 'error', message: res.message });
         }

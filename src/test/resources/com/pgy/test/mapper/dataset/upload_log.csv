@@ -1,3 +1,3 @@
-id,uploader_id,filename,file_type,signature,path,url,size,status,create_time,update_time
-1,1,"file1","img","sign1","url1","url1",100,0,"2016-06-23 20:40:16","2016-06-23 20:40:16"
-2,2,"file2","zip","sign2","url2","url2",100,0,"2016-06-23 20:41:01","2016-06-23 20:41:01"
+id,uploader_id,filename,file_type,signature,path,url,download_url,size,status,create_time,update_time
+1,1,"file1","img","sign1","url1","url1","dUrl1",100,0,"2016-06-23 20:40:16","2016-06-23 20:40:16"
+2,2,"file2","zip","sign2","url2","url2","dUrl2",100,0,"2016-06-23 20:41:01","2016-06-23 20:41:01"

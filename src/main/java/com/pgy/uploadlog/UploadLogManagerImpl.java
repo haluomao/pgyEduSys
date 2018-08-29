@@ -2,6 +2,7 @@ package com.pgy.uploadlog;
 
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +46,9 @@ public class UploadLogManagerImpl implements UploadLogManager {
 
     @Override
     public void delete(List<Long> ids) {
-        uploadLogMapper.delete(ids);
+        if (CollectionUtils.isNotEmpty(ids)) {
+            uploadLogMapper.delete(ids);
+        }
     }
 
     @Override

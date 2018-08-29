@@ -12,20 +12,20 @@
 			</el-select>
 		</el-row>
 		<template>
-			<el-checkbox-group v-model="checkList" @change="gradeChanged">
+			<el-radio-group v-model="checkList" @change="gradeChanged">
 				<el-row>
 					<div class='icon-span'>
 						<i class="el-icon-edit"></i>
-					    <el-checkbox label="数学互动小课堂" border></el-checkbox>
+					    <el-radio label="数学互动小课堂" border></el-radio>
 					</div>
 				</el-row>
 				<el-row>
 					<div class='icon-span'>
 						<i class="el-icon-service"></i>
-					    <el-checkbox label="语文互动小课堂" border></el-checkbox>
+					    <el-radio label="语文互动小课堂" border></el-radio>
 					</div>
 				</el-row>
-			</el-checkbox-group>
+			</el-radio-group>
 		</template>
 	</div>
 </template>
@@ -38,7 +38,7 @@
 			return {
 				gradeSelect: '',
 				grades: [{id:0, name:'全部'}],
-				checkList: []
+				checkList: ''
 			}
 		},
 		mounted() {
@@ -60,9 +60,9 @@
 		    },
 			gradeChanged() {
 				var data = {gradeId: this.gradeSelect, categoryId: 0};
-				if (this.checkList.length === 1) {
-					data.categoryId = this.checkList[0].indexOf('数学') >= 0 ? 1:2;
-				}
+				if (this.checkList) {
+					data.categoryId = this.checkList.indexOf('数学') >= 0 ? 1:2;
+				} 
 				this.$root.Bus.$emit('queryCoursewareList', data);
 			}
 		}

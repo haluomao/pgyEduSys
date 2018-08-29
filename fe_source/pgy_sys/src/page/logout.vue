@@ -15,19 +15,22 @@ export default{
             name: ''
         }
     },
-    mounted(){
+    mounted() {
+        this.quit();
         /*页面挂载获取保存的cookie值，渲染到页面上*/
-        let userInfo = getCookie('userInfo')
+        /*
+        let userInfo = getCookie('userInfo');
         if (userInfo === undefined) {
             this.$router.push('/')
         } else {
         	this.name = userInfo.username;
         }
+        */
     },
     methods:{
         quit(){
             /*删除cookie*/
-            delCookie('userInfo')
+            delCookie('userInfo');
         }
     }
 }

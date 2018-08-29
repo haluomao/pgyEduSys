@@ -21,12 +21,9 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   `create_time` timestamp NOT NULL DEFAULT '1980-01-01 00:00:00',
   `update_time` timestamp NOT NULL DEFAULT '1980-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `account_name` (`account_name`),
+  KEY `account_name` (`account_name`),
   KEY `update_time` (`update_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-INSERT INTO `pgy`.`accounts`(`id`, `account_name`, `account_pass`, `username`, `role`, `account_status`, `begin_time`, `end_time`, `create_time`, `update_time`)
-VALUES (1, 'admin', '1dd5f07e87dfcb40e18ca7f145f621fe', 'super_admin', 1, 0, now(), '2020-12-30 00:00:00', now(), now());
 
 -- Create syntax for TABLE 'account_config'
 DROP TABLE IF EXISTS `account_config`;
@@ -69,7 +66,8 @@ CREATE TABLE `materials` (
   `description` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料描述',
   `file_type` int(11) NOT NULL DEFAULT 0 COMMENT '材料类型: 0-txt,1-ppt',
   `teach_type` tinyint(3) NOT NULL COMMENT '材料所属课件',
-  `url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料下载链接',
+  `url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料打开链接',
+  `download_url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料下载链接',
   `icon` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料缩略图链接',
   `author_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '材料作者',
   `uploader_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '材料上传者',
@@ -90,7 +88,8 @@ CREATE TABLE `upload_log` (
   `file_type` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '材料类型',
   `signature` VARCHAR(255) NOT NULL COMMENT '材料签名',
   `path` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料存储位置',
-  `url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料下载链接',
+  `url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料打开链接',
+  `download_url` VARCHAR(1020) NOT NULL DEFAULT '' COMMENT '材料下载链接',
   `size` INT(11) NOT NULL DEFAULT 0 COMMENT '材料byte大小',
   `status` TINYINT(3) NOT NULL COMMENT '状态',
   `create_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00',
@@ -134,6 +133,13 @@ CREATE TABLE `grade_material` (
   `update_time` TIMESTAMP NOT NULL DEFAULT '1980-01-01 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+INSERT INTO `pgy`.`accounts`(`id`, `account_name`, `account_pass`, `username`, `role`, `account_status`, `begin_time`, `end_time`, `create_time`, `update_time`)
+    VALUES (1, 'admin', '1dd5f07e87dfcb40e18ca7f145f621fe', 'super_admin', 1, 0, now(), '2020-12-30 00:00:00', now(), now());
+
+INSERT INTO `pgy`.`account_config`(`id`, `account_id`,  `teacher_limit`, `parent_limit`, `storage_limit`, `storage_used`, `config`, `status`, `begin_time`, `end_time`, `create_time`, `update_time`)
+    VALUES (1, 1, -1, -1, -1, 0, '{}', 0, now(), '2020-12-30 00:00:00', now(), now());
 
 INSERT INTO
     categories(id, `name`, `description`, `price`, user_id, `status`, create_time, update_time)

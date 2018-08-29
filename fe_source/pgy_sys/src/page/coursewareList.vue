@@ -1,14 +1,29 @@
 <template>
     <div class="fillcontain">
         <el-row>
-            <el-col :span="12">
-                <template v-if="isSuperAdmin">
-                    <el-button type="primary" class="newBtnStyle" round @click="handleAdd()">添加资料</el-button>
+            <el-col :span="9" v-if="!isSharing">
+                <template v-if="isCourseware">
+                    <div class="cTitleDiv"><span class="cTitleStyle">{{cateName}}互动小课堂</span> <br /><span class="cSubTitleStyle">像公开课一样优秀</span></div>
                 </template>
                 <template v-else>
                     <div class="grid-content bg-purple-dark">&nbsp;</div>
                 </template>
             </el-col>
+
+            <template v-if="isSharing">
+                <el-col :span="8">
+                    <el-radio-group v-model="sharingType">
+                      <el-radio-button label="网上资源" @click="reload()"></el-radio-button>
+                      <el-radio-button label="我的共享" @click="reload()"></el-radio-button>
+                    </el-radio-group>
+                </el-col>
+            </template>
+
+            <template v-if="isSuperAdmin || isSharing">
+                <el-col :span="4">
+                    <el-button type="primary" class="newBtnStyle" round @click="handleAdd()">添加资料</el-button>
+                </el-col>
+            </template>
 
             <el-col :span="8">
                 <el-input :placeholder='"请输入"+catName+"名称"' v-model="nameQuery" class="input-with-select">
@@ -25,13 +40,13 @@
 
                 <el-table-column v-if="false" :label='catName+"ID"' prop="id"></el-table-column>
 
-                <el-table-column>
+                <el-table-column label="缩略图"  width="120px">
                     <template slot-scope="scope">
                         <img :src="scope.row.icon" style="width:90px; height:90px" />
                     </template>
                 </el-table-column>
-                <el-table-column :label='catName+"名称"' prop="name"></el-table-column>
-                <el-table-column :label='catName+"描述"' prop="description"></el-table-column>
+                <el-table-column :label='catName+"名称"' prop="name" width="200px"></el-table-column>
+                <el-table-column :label='catName+"描述"' prop="description" ></el-table-column>
 
                 <el-table-column label="操作" width="300px">
                   <template slot-scope="scope">
@@ -66,7 +81,6 @@
           title="二维码"
           :visible.sync="qrDialogVisible"
           width="240px">
-          <!-- <div id='qrzone' :class="qrStyle" @click="handleQRCodeClose()" /> -->
           <div id='qrzone' />
           <span slot="footer" class="dialog-footer">
             <a id="downloadLink"></a>
@@ -76,19 +90,29 @@
         </el-dialog>
 
         <el-dialog :title="flashName"
-          :visible.sync="flashDialogVisible" >
-            <div class="flashStyle">
-            <embed style="RIGHT: 10px; POSITION: absolute; TOP: 10px" align=center
-                :src='flashUrl' width="100%"
-                type='application/x-shockwave-flash'
-                wmode="transparent" quality="high"></embed>
+          :visible.sync="flashDialogVisible" id="flashDialogStyle">
+            <div>
+                <embed class="embedStyle" :src='flashUrl' 
+                    type='application/x-shockwave-flash'></embed>
             </div>
+            <div class="retryClickStyle">
+                预览出错了?<a :href='flashUrl' target="_blank">点我试试</a></div>
         </el-dialog>
 
         <el-dialog :title="pdfName"
-          :visible.sync="pdfDialogVisible" width="80%">
+          :visible.sync="pdfDialogVisible" id="pdfDialogStyle">
             <div class="pdfStyle">
-                <pdf :src='pdfUrl' />
+                <button @click="function(){if(pdfCurrentPage>1) {pdfCurrentPage -= 1;}}">&lt;</button>
+                <input v-model.number="pdfCurrentPage" type="number" style="width: 5em"> /{{pdfPageCount}}
+                <button @click="function(){if(pdfCurrentPage < pdfPageCount) {pdfCurrentPage += 1;}}">&gt;</button>
+                <button @click="pdfRotate += 90">&#x27F3;</button>
+                <button @click="pdfRotate -= 90">&#x27F2;</button>
+                <button @click="$refs.pdf.print()">打印</button>
+                <button @click="pdfDialogVisible=false">关闭</button>
+                <div>
+                    <div v-if="pdfLoadedRatio > 0 && pdfLoadedRatio < 1" style="background-color: green; color: white; text-align: center" :style="{ width: pdfLoadedRatio * 100 + '%' }">{{ Math.floor(pdfLoadedRatio * 100) }}%</div>
+                    <pdf v-if="pdfDialogVisible" ref="pdf" style="border: 1px solid red" :src="pdfUrl" :page="pdfCurrentPage" :rotate="pdfRotate" @progress="pdfLoadedRatio = $event"  @num-pages="pdfPageCount = $event" @link-clicked="pdfCurrentPage = $event"></pdf>
+                </div>
             </div>
         </el-dialog>
     </div>
@@ -96,11 +120,12 @@
 
 <script>
     import _ from "lodash"
-    import { MaterialTypeEnum } from '@/config/enum' 
+    import { MaterialTypeEnum, PublicLevelEnum } from '@/config/enum' 
     import {listMaterials, deleteMaterial} from '@/api/getData'
     import {getCookie} from '@/assets/cookie'
     import QRCode from 'qrcodejs2'
     import pdf from 'vue-pdf'
+    import { baseLoginUrl } from '@/config/env'
     
     export default {
         data(){
@@ -115,6 +140,9 @@
                 },
                 nameQuery: '',
                 isSuperAdmin: false,
+                isTeacher: false,
+                isSharing: false,
+                isCourseware: true,
                 qrStyle: '',
                 catName: '课件',
                 defaultImg: require('../assets/img/1.png'),
@@ -127,7 +155,13 @@
                 flashUrl: '',
                 pdfDialogVisible: false,
                 pdfName: '',
-                pdfUrl: ''
+                pdfUrl: '',
+                cateName: '',
+                pdfPageCount: 0,
+                pdfCurrentPage: 1,
+                pdfLoadedRatio: 0,
+                pdfRotate: 0,
+                sharingType: '我的共享'
             }
         },
         watch: {
@@ -140,13 +174,21 @@
         created() {
             this.checkLogin();
             
+            let cookie = getCookie('userInfo');
+            if (cookie) {
+                let userInfo = JSON.parse(cookie);
+                this.isSuperAdmin = userInfo.role === 'SUPERADMIN';
+                this.isTeacher = userInfo.role === 'TEACHER';
+            }
+
             var self = this;
             this.initData();
 
             this.$root.Bus.$on('queryCoursewareList', function(val) {
-                if (val) {   
+                if (val) {
                     self.gradeId = val.gradeId;
                     self.categoryId = val.categoryId;
+                    self.cateName = val.categoryId===1 ? '数学':(val.categoryId===2 ? '语文': ''); 
                 }
                 self.reload();
             });
@@ -154,12 +196,6 @@
             this.$root.Bus.$on('coursewareList', function(val) {
                 self.reload();
             });
-
-            let cookie = getCookie('userInfo');
-            if (cookie) {
-                let userInfo = JSON.parse(cookie)
-                this.isSuperAdmin = userInfo.role === 'SUPERADMIN';
-            }
         },
     	components: {
             pdf: pdf
@@ -194,15 +230,23 @@
                 downloadLink.click();
             },
             reload() {
+                this.pdfDialogVisible = false;
+                this.flashDialogVisible = false;
                 this.getMaterials();
 
                 let path = this.$route.path;
                 let type = path.charAt(path.length - 1);
+                this.isCourseware = false;
+                this.isSharing = false;
                 if (type === '2') {
                     this.catName = "教案";
                 } else if (type === '3') {
                     this.catName = "习题";
+                } else if (type === '4') {
+                    this.catName = "共享资源";
+                    this.isSharing = true;
                 } else {
+                    this.isCourseware = true;
                     this.catName = "课件";
                 }
             },
@@ -219,11 +263,21 @@
                 }
                 params.gradeId = this.gradeId;
                 params.categoryId = this.categoryId;
+
+                if (this.isSharing === true) {
+                    if (this.sharingType === PublicLevelEnum.prop['PRIVATE'].text) {
+                        params.publicLevel = 'PRIVATE';
+                    } else {
+                        params.publicLevel = 'ONLINE_PUBLIC';
+                    }
+                } else {
+                    params.publicLevel = 'PUBLIC';
+                }
                 return params;
             },
             async initData() {
                 try {
-                	this.getMaterials();
+                	this.reload();
                 } catch(err) {
                     console.log('获取数据失败', err);
                 }
@@ -249,6 +303,7 @@
                         row.description = item.description;
                         row.price = item.price;
                         row.url = item.material;
+                        row.downloadUrl = item.downloadUrl;
                         this.tableData.push(row);
                     })
                 }
@@ -261,13 +316,16 @@
                 this.$root.Bus.$emit('addCourseware', {});
             },
             handleOpen(index, row) {
-                if (false && (row.url.indexOf('.swf') > 0 || row.url.indexOf('.SWF') > 0)) {
+                if (row.url.indexOf('.swf') > 0 || row.url.indexOf('.SWF') > 0) {
                     this.flashName = row.name;
                     this.flashUrl = row.url;
                     this.flashDialogVisible = true;
                 } else if (row.url.indexOf('.pdf') > 0 || row.url.indexOf('.PDF') > 0) {
                     this.pdfName = row.name;
-                    this.pdfUrl = row.url;
+                    this.pdfUrl = row.url; //'https://cdn.mozilla.net/pdfjs/tracemonkey.pdf'; 
+                    this.pdfPageCount = 0;
+                    this.pdfRotate = 0;
+                    console.log( this.pdfUrl);
                     this.pdfDialogVisible = true;
                 } else {
                     window.open(row.url);
@@ -276,8 +334,9 @@
             handleQRCode(index, row) {
                 this.qrDialogVisible = true;
                 this.qrName = row.name;
+                row.qrUrl = baseLoginUrl + '?redirect=' + encodeURIComponent(row.url);
                 this.$nextTick(function() {
-                    this.qrcode(row.url);
+                    this.qrcode(row.qrUrl);
                 });
             },
             handleQRCodeClose() {
@@ -378,11 +437,62 @@
     .input-with-select .el-input-group__prepend {
         background-color: #fff;
     }
-    .qrNewStyle { 
+    .qrNewStyle, .pdfStyle { 
         text-align: center;
     }
 
-    .flashStyle {
+    #flashDialogStyle .el-dialog, #pdfDialogStyle .el-dialog{
+        height: 100%;
+        width: 100%;
+        margin-top: 1px !important;
+    }
+    #flashDialogStyle .el-dialog .el-dialog__header, 
+    #pdfDialogStyle .el-dialog .el-dialog__header{
+        padding: 10px 20px 0px;
+    }
+    #flashDialogStyle .el-dialog button {
+        top: 5px;
+        right: 5px;
+        font-size: 32px;
+    }
+    #pdfDialogStyle .el-dialog button {
+        top: 5px;
+        right: 5px;
+        font-size: 16px;
+    }
+    #flashDialogStyle .el-dialog__body, #pdfDialogStyle .el-dialog__body{
+        padding: 10px 2px;
+    }
+    #flashDialogStyle i, #pdfDialogStyle i {
+        color: #F00;
+    }
+    .embedStyle {
+        left: 0px;
+        top: 40px;
+        bottom: 0px;
+        position: absolute;
+        text-align: center;
+        width: 100%;
+        height: 95%;
+    }
+    .retryClickStyle {
+        position: absolute;
+        top: 12px;
+        right: 100px;
+    }
+
+    .cTitleDiv {
+        margin-top: -14px;
+        margin-bottom: -20px;
+    }
+    .cTitleStyle {
+        font-size: 32px;
+        color: #ff982a;
+        //color: #f56c6c;
+        //color: #d5596f;
+    }
+    .cSubTitleStyle {
+        color: #ff982a;
         text-align: center;
     }
 </style>

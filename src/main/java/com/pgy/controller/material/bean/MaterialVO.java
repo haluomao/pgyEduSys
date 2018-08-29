@@ -3,10 +3,10 @@ package com.pgy.controller.material.bean;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
 import com.pgy.material.bean.FileType;
 import com.pgy.material.bean.Material;
 import com.pgy.material.bean.MaterialStatus;
+import com.pgy.material.bean.PublicLevel;
 import com.pgy.material.bean.TeachType;
 
 /**
@@ -26,9 +26,13 @@ public class MaterialVO {
         private TeachType teachType;
         private String icon = StringUtils.EMPTY;
         private String url;
+        private String downloadUrl;
+        private int materialSize;
+        private int iconSize;
         private long categoryId;
         private long gradeId;
         private MaterialStatus status;
+        private PublicLevel publicLevel;
 
         private Builder() {
         }
@@ -82,6 +86,26 @@ public class MaterialVO {
             return this;
         }
 
+        public Builder withDownloadUrl(String downloadUrl) {
+            this.downloadUrl = downloadUrl;
+            return this;
+        }
+
+        public Builder withMaterialSize(int materialSize) {
+            this.materialSize = materialSize;
+            return this;
+        }
+
+        public Builder withIconSize(int iconSize) {
+            this.iconSize = iconSize;
+            return this;
+        }
+
+        public Builder withPublicLevel(PublicLevel publicLevel) {
+            this.publicLevel = publicLevel;
+            return this;
+        }
+
         public Builder withStatus(MaterialStatus status) {
             this.status = status;
             return this;
@@ -107,7 +131,9 @@ public class MaterialVO {
             this.teachType = material.getTeachType();
             this.icon = material.getIcon();
             this.url = material.getUrl();
+            this.downloadUrl = material.getDownloadUrl();
             this.status = material.getStatus();
+            this.publicLevel = publicLevel;
             return this;
         }
 
@@ -122,9 +148,12 @@ public class MaterialVO {
             materialVO.setTeachType(teachType);
             materialVO.setIcon(icon);
             materialVO.setUrl(url);
+            materialVO.setDownloadUrl(downloadUrl);
+            materialVO.setMaterialSize(materialSize);
             materialVO.setCategoryId(categoryId);
             materialVO.setGradeId(gradeId);
             materialVO.setStatus(status);
+            materialVO.setPublicLevel(publicLevel);
             return materialVO;
         }
     }
@@ -140,9 +169,14 @@ public class MaterialVO {
     private String icon;
     @JsonProperty("material")
     private String url;
+    private String downloadUrl;
+    private int materialSize;
+    @JsonProperty("avatarSize")
+    private int iconSize;
     private long categoryId;
     private long gradeId;
     private MaterialStatus status;
+    private PublicLevel publicLevel;
 
     public Material buildMaterial() {
         Material material = new Material();
@@ -151,12 +185,50 @@ public class MaterialVO {
         material.setUploaderId(uploaderId);
         material.setIcon(icon == null ? StringUtils.EMPTY : icon);
         material.setUrl(url);
+        material.setDownloadUrl(downloadUrl);
         material.setFileType(fileType);
         material.setTeachType(teachType);
         material.setName(name);
         material.setDescription(description);
         material.setStatus(status);
+        material.setPublicLevel(publicLevel);
         return material;
+    }
+
+    public PublicLevel getPublicLevel() {
+        return publicLevel;
+    }
+
+    public void setPublicLevel(PublicLevel publicLevel) {
+        this.publicLevel = publicLevel;
+    }
+
+    public int getTotalSize() {
+        return materialSize + iconSize;
+    }
+
+    public String getDownloadUrl() {
+        return downloadUrl;
+    }
+
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public int getMaterialSize() {
+        return materialSize;
+    }
+
+    public void setMaterialSize(int materialSize) {
+        this.materialSize = materialSize;
+    }
+
+    public int getIconSize() {
+        return iconSize;
+    }
+
+    public void setIconSize(int iconSize) {
+        this.iconSize = iconSize;
     }
 
     public long getId() {
@@ -276,42 +348,21 @@ public class MaterialVO {
         builder.append(icon);
         builder.append(", url=");
         builder.append(url);
+        builder.append(", downloadUrl=");
+        builder.append(downloadUrl);
+        builder.append(", materialSize=");
+        builder.append(materialSize);
+        builder.append(", iconSize=");
+        builder.append(iconSize);
         builder.append(", categoryId=");
         builder.append(categoryId);
         builder.append(", gradeId=");
         builder.append(gradeId);
         builder.append(", status=");
         builder.append(status);
+        builder.append(", publicLevel=");
+        builder.append(publicLevel);
         builder.append('}');
         return builder.toString();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof MaterialVO)) {
-            return false;
-        }
-        MaterialVO that = (MaterialVO) o;
-        return id == that.id
-                && authorId == that.authorId
-                && uploaderId == that.uploaderId
-                && categoryId == that.categoryId
-                && gradeId == that.gradeId
-                && Objects.equal(name, that.name)
-                && Objects.equal(description, that.description)
-                && fileType == that.fileType
-                && teachType == that.teachType
-                && Objects.equal(icon, that.icon)
-                && Objects.equal(url, that.url)
-                && status == that.status;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id, authorId, uploaderId, name, description, fileType, teachType,
-                icon, url, categoryId, gradeId, status);
     }
 }

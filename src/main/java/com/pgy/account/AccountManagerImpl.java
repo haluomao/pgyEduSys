@@ -87,8 +87,8 @@ public class AccountManagerImpl implements AccountManager {
     }
 
     @Override
-    public int getAccountCount(long parentId, int role) {
-        return accountMapper.countAccount(parentId, role);
+    public int getAccountCount(List<Long> parentIds, int role) {
+        return accountMapper.countAccount(parentIds, role);
     }
 
     @Override
@@ -114,8 +114,8 @@ public class AccountManagerImpl implements AccountManager {
     }
 
     @Override
-    public void updateAccountConfig(AccountConfig accountConfig) {
-        accountConfigMapper.update(accountConfig);
+    public void createAccountConfig(AccountConfig accountConfig) {
+        accountConfigMapper.create(accountConfig);
     }
 
     @Override

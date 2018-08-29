@@ -7,9 +7,10 @@ package com.pgy.material.bean;
  */
 public enum PublicLevel {
     UNKNOWN(-1),
-    PUBLIC(1),
-    HALF_PUBLIC(2),
-    PRIVATE(3);
+    PRIVATE(1),
+    PUBLIC(2),
+    HALF_PUBLIC(3),
+    ONLINE_PUBLIC(4);
 
     int value;
 

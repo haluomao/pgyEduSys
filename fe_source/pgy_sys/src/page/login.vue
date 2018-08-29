@@ -62,10 +62,12 @@
                             location.reload();
                             console.log('登录成功');
 	                        this.$emit('userSignIn', res.result);
-	                        //this.$router.push('/home');
+                            if (this.$route.query.redirect) {
+    	                        window.location.href = this.$route.query.redirect;
+                            }
 	                    } else {
                             this.showTip = true;
-                            this.$router.push('/pgy/login.html');
+                            // this.$router.push('/pgy/login.html');
                             this.tip = '用户名或密码错误，或账户已过期';
                             console.log(res.message);
                         }

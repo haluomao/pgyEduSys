@@ -9,6 +9,7 @@ import com.pgy.account.bean.Account;
 import com.pgy.account.bean.AccountConfig;
 import com.pgy.account.bean.AccountStatus;
 import com.pgy.auth.bean.Role;
+import com.pgy.common.bean.Status;
 
 /**
  * Account VO.
@@ -33,8 +34,12 @@ public class AccountVO {
         private Date beginTime;
         private Date endTime;
         private AccountConfig config;
-        private long teacherCount;
-        private long parentCount;
+        private int teacherCount;
+        private int teacherLimit;
+        private int parentCount;
+        private int parentLimit;
+        private int storageLimit;
+        private int storageUsed;
 
         private Builder() {
         }
@@ -113,13 +118,33 @@ public class AccountVO {
             return this;
         }
 
-        public Builder withTeacherCount(long teacherCount) {
+        public Builder withTeacherCount(int teacherCount) {
             this.teacherCount = teacherCount;
             return this;
         }
 
-        public Builder withParentCount(long parentCount) {
+        public Builder withParentCount(int parentCount) {
             this.parentCount = parentCount;
+            return this;
+        }
+
+        public Builder withTeacherLimit(int teacherLimit) {
+            this.teacherLimit = teacherLimit;
+            return this;
+        }
+
+        public Builder withParentLimit(int parentLimit) {
+            this.parentLimit = parentLimit;
+            return this;
+        }
+
+        public Builder withStorageLimit(int storageLimit) {
+            this.storageLimit = storageLimit;
+            return this;
+        }
+
+        public Builder withStorageUsed(int storageUsed) {
+            this.storageUsed = storageUsed;
             return this;
         }
 
@@ -136,6 +161,15 @@ public class AccountVO {
             this.status = account.getStatus();
             this.beginTime = account.getBeginTime();
             this.endTime = account.getEndTime();
+            return this;
+        }
+
+        public Builder withAccountConfig(AccountConfig accountConfig) {
+            this.id = accountConfig.getAccountId();
+            this.parentLimit = accountConfig.getParentLimit();
+            this.teacherLimit = accountConfig.getTeacherLimit();
+            this.storageLimit = accountConfig.getStorageLimit();
+            this.storageUsed = accountConfig.getStorageUsed();
             return this;
         }
 
@@ -157,6 +191,10 @@ public class AccountVO {
             accountVO.setConfig(config);
             accountVO.setTeacherCount(teacherCount);
             accountVO.setParentCount(parentCount);
+            accountVO.setTeacherLimit(teacherLimit);
+            accountVO.setParentLimit(parentLimit);
+            accountVO.setStorageLimit(storageLimit);
+            accountVO.setStorageUsed(storageUsed);
             return accountVO;
         }
     }
@@ -175,8 +213,12 @@ public class AccountVO {
     private Date beginTime;
     private Date endTime;
     private AccountConfig config;
-    private long teacherCount;
-    private long parentCount;
+    private int teacherLimit;
+    private int teacherCount;
+    private int parentLimit;
+    private int parentCount;
+    private int storageLimit;
+    private int storageUsed;
 
     public Account buildAccount() {
         Account account = new Account();
@@ -194,6 +236,51 @@ public class AccountVO {
         account.setBeginTime(beginTime);
         account.setEndTime(endTime);
         return account;
+    }
+
+    public AccountConfig buildAccountConfig(long accountId) {
+        AccountConfig accountConfig = new AccountConfig();
+        accountConfig.setAccountId(accountId);
+        accountConfig.setParentLimit(parentLimit);
+        accountConfig.setTeacherLimit(teacherLimit);
+        accountConfig.setStorageLimit(storageLimit);
+        accountConfig.setStorageUsed(0);
+        accountConfig.setBeginTime(beginTime);
+        accountConfig.setEndTime(endTime);
+        accountConfig.setStatus(Status.ENABLED);
+        return accountConfig;
+    }
+
+    public int getTeacherLimit() {
+        return teacherLimit;
+    }
+
+    public void setTeacherLimit(int teacherLimit) {
+        this.teacherLimit = teacherLimit;
+    }
+
+    public int getParentLimit() {
+        return parentLimit;
+    }
+
+    public void setParentLimit(int parentLimit) {
+        this.parentLimit = parentLimit;
+    }
+
+    public int getStorageLimit() {
+        return storageLimit;
+    }
+
+    public void setStorageLimit(int storageLimit) {
+        this.storageLimit = storageLimit;
+    }
+
+    public int getStorageUsed() {
+        return storageUsed;
+    }
+
+    public void setStorageUsed(int storageUsed) {
+        this.storageUsed = storageUsed;
     }
 
     public long getId() {
@@ -308,19 +395,19 @@ public class AccountVO {
         this.config = config;
     }
 
-    public long getTeacherCount() {
+    public int getTeacherCount() {
         return teacherCount;
     }
 
-    public void setTeacherCount(long teacherCount) {
+    public void setTeacherCount(int teacherCount) {
         this.teacherCount = teacherCount;
     }
 
-    public long getParentCount() {
+    public int getParentCount() {
         return parentCount;
     }
 
-    public void setParentCount(long parentCount) {
+    public void setParentCount(int parentCount) {
         this.parentCount = parentCount;
     }
 
@@ -355,10 +442,18 @@ public class AccountVO {
         builder.append(endTime);
         builder.append(", config=");
         builder.append(config);
+        builder.append(", teacherLimit=");
+        builder.append(teacherLimit);
         builder.append(", teacherCount=");
         builder.append(teacherCount);
+        builder.append(", parentLimit=");
+        builder.append(parentLimit);
         builder.append(", parentCount=");
         builder.append(parentCount);
+        builder.append(", storageLimit=");
+        builder.append(storageLimit);
+        builder.append(", storageUsed=");
+        builder.append(storageUsed);
         builder.append('}');
         return builder.toString();
     }

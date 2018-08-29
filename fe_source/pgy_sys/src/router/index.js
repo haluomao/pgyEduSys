@@ -11,7 +11,7 @@ const coursewareList = r => require.ensure([], () => r(require('@/page/coursewar
 const addCourseware = r => require.ensure([], () => r(require('@/page/addCourseware')), 'addCourseware');
 const accountList = r => require.ensure([], () => r(require('@/page/accountList')), 'accountList');
 const gradeList = r => require.ensure([], () => r(require('@/page/gradeList')), 'gradeList');
-const home = r => require.ensure([], () => r(require('@/page/home')), 'home');
+const homepage = r => require.ensure([], () => r(require('@/page/homepage')), 'homepage');
 const contact = r => require.ensure([], () => r(require('@/page/contact')), 'contact');
 const login = r => require.ensure([], () => r(require('@/page/login')), 'login');
 
@@ -32,8 +32,8 @@ export default new Router({
       component: HelloWorld
     },
     {
-      path: '/home',
-      component: home
+      path: '/homepage',
+      component: homepage
     },
     {
       path: '/coursewareList1',

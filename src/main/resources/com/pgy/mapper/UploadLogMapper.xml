@@ -14,6 +14,7 @@
             signature,
             path,
             url,
+            download_url,
             size,
             status
         FROM
@@ -38,6 +39,7 @@
             signature,
             path,
             url,
+            download_url,
             size,
             status
         FROM
@@ -56,6 +58,7 @@
             signature,
             path,
             url,
+            download_url,
             size,
             status
         FROM
@@ -76,6 +79,7 @@
              signature,
              path,
              url,
+             download_url,
              size,
              status,
              create_time,
@@ -87,6 +91,7 @@
              #{signature},
              #{path},
              #{url},
+             #{downloadUrl},
              #{size},
              #{status},
              now(),
@@ -98,6 +103,7 @@
             signature = #{signature},
             path = #{path},
             url = #{url},
+            download_url = #{downloadUrl},
             size = #{size},
             status = #{status}
     </insert>
@@ -112,6 +118,7 @@
             signature = #{signature},
             path = #{path},
             url = #{url},
+            download_url = #{downloadUrl},
             size = #{size},
             status = #{status}
         WHERE

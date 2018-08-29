@@ -16,6 +16,8 @@ public class UploadResult {
         private String url;
         private String mimeType;
         private String path;
+        private String downloadUrl;
+        private int storageUsed;
 
         private Builder() {
         }
@@ -39,11 +41,23 @@ public class UploadResult {
             return this;
         }
 
+        public Builder withDownloadUrl(String downloadUrl) {
+            this.downloadUrl = downloadUrl;
+            return this;
+        }
+
+        public Builder withStorageUsed(int storageUsed) {
+            this.storageUsed = storageUsed;
+            return this;
+        }
+
         public UploadResult build() {
             UploadResult uploadResult = new UploadResult();
             uploadResult.setUrl(url);
             uploadResult.setMimeType(mimeType);
             uploadResult.setPath(path);
+            uploadResult.setDownloadUrl(downloadUrl);
+            uploadResult.setStorageUsed(storageUsed);
             return uploadResult;
         }
     }
@@ -52,6 +66,8 @@ public class UploadResult {
     private String mimeType;
     @JsonIgnore
     private String path;
+    private String downloadUrl;
+    private int storageUsed;
 
     public String getUrl() {
         return url;
@@ -77,23 +93,20 @@ public class UploadResult {
         this.path = path;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof UploadResult)) {
-            return false;
-        }
-        UploadResult result = (UploadResult) o;
-        return Objects.equal(url, result.url)
-                && Objects.equal(mimeType, result.mimeType)
-                && Objects.equal(path, result.path);
+    public String getDownloadUrl() {
+        return downloadUrl;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(url, mimeType, path);
+    public void setDownloadUrl(String downloadUrl) {
+        this.downloadUrl = downloadUrl;
+    }
+
+    public int getStorageUsed() {
+        return storageUsed;
+    }
+
+    public void setStorageUsed(int storageUsed) {
+        this.storageUsed = storageUsed;
     }
 
     @Override
@@ -105,8 +118,32 @@ public class UploadResult {
         builder.append(mimeType);
         builder.append(", path=");
         builder.append(path);
+        builder.append(", downloadUrl=");
+        builder.append(downloadUrl);
+        builder.append(", storageUsed=");
+        builder.append(storageUsed);
         builder.append('}');
         return builder.toString();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof UploadResult)) {
+            return false;
+        }
+        UploadResult result = (UploadResult) o;
+        return storageUsed == result.storageUsed
+                && Objects.equal(url, result.url)
+                && Objects.equal(mimeType, result.mimeType)
+                && Objects.equal(path, result.path)
+                && Objects.equal(downloadUrl, result.downloadUrl);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(url, mimeType, path, downloadUrl, storageUsed);
+    }
 }

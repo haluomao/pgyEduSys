@@ -223,8 +223,13 @@
             account_status != -1
         AND
             role > 1
-        AND
-            parent_id = #{parentId}
+        <if test="parentIds != null and parentIds.size()>0" >
+            AND
+                parent_id IN
+                <foreach item="item" collection="parentIds" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+        </if>
         AND
             role = #{role}
     </select>

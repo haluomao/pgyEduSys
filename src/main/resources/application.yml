@@ -43,6 +43,7 @@ upload:
     prefix: http://localhost:9066/files/
     resPatterns: /files/**
     location: file:./Downloads/pgy/
+    trashDir: ./Downloads/pgy_trash
   bos:
     ak: ak
     sk: sk
@@ -55,3 +56,5 @@ material:
 schedule:
   userCheckEnable: false
   userCheckCron: "0 0 0 * * *"
+  fileCleanEnable: false
+  fileCleanCron: "0 0 0 0 0 7"

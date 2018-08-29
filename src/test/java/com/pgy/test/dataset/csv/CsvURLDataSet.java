@@ -14,7 +14,7 @@ import org.dbunit.dataset.csv.CsvDataSet;
  * <p/>
  * This class is copied from dbunit, and modified to support setting encoding.
  *
- * @author unkown
+ * @author Felix
  */
 public class CsvURLDataSet extends CachedDataSet {
 
