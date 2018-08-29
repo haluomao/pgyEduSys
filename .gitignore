@@ -6,3 +6,4 @@ build/*
 upload/
 src/main/resources/static/**
 *online.yml
+*package-lock.json
