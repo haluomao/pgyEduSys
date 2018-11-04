@@ -10,9 +10,9 @@ import com.pgy.rest.RestResultResponse;
  *
  * @author Felix
  */
-@RequestMapping("/api/v1/auth")
+@RequestMapping("/")
 public interface AuthController {
 
-    @RequestMapping("/logined")
+    @RequestMapping("api/v1/auth/logined")
     RestResultResponse<Boolean> checkLogin(CustomUser customUser) throws Exception;
 }

@@ -1,5 +1,7 @@
 package com.pgy.controller.auth;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,6 +16,7 @@ import com.pgy.rest.RestResultResponse;
  */
 @RestController
 public class AuthControllerImpl implements AuthController {
+    private static final Log log = LogFactory.getLog(AuthControllerImpl.class);
 
     @Override
     public RestResultResponse<Boolean> checkLogin(@AuthenticationPrincipal CustomUser customUser) throws Exception {
@@ -22,4 +25,5 @@ public class AuthControllerImpl implements AuthController {
         }
         return RestResponseFactory.newSuccessfulResponse(true);
     }
+
 }

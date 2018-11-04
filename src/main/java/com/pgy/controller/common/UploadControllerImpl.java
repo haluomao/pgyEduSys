@@ -143,7 +143,7 @@ public class UploadControllerImpl implements UploadController {
                 if (StringUtils.isEmpty(indexFile)) {
                     throw new Exception("No index.html file exists in this zip.");
                 }
-                relativePath = relativePath + indexFile.substring(newPath.length());
+                relativePath = relativePath + "_content" + indexFile.substring(newPath.length());
             }
 
             return UploadResult.Builder.anUploadResult()
